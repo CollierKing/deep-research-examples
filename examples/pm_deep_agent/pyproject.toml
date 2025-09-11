@@ -1,0 +1,20 @@
+[project]
+name = "pm-deep-agent"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "colorama>=0.4.6",
+    "deepagents>=0.0.5",
+    "langchain-cloudflare>=0.1.8",
+    "langchain-google-genai>=2.1.10",
+    "langchain-openai>=0.3.32",
+    "langgraph>=0.6.7",
+    "pandas>=2.3.2",
+    "pydantic>=2.11.7",
+    "python-dotenv>=1.1.1",
+    "shapely<2.0",
+    "sqlalchemy>=2.0.43",
+    "sqlalchemy-cloudflare-d1>=0.1.0",
+]
