@@ -1,0 +1,22 @@
+[project]
+name = "ai-theme-plays"
+version = "0.1.0"
+description = "A Deep Agent to research companies within various AI themes"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "boto3>=1.40.63",
+    "colorama>=0.4.6",
+    "deepagents>=0.2.0",
+    "joblib>=1.5.2",
+    "langchain>=1.0.3",
+    "langchain-google-genai>=2.1.10",
+    "langchain-openai>=0.3.32",
+    "langgraph>=0.6.7",
+    "langgraph-checkpoint-sqlite>=2.0.6",
+    "pandas>=2.3.2",
+    "psycopg2-binary>=2.9.10",
+    "pydantic>=2.11.7",
+    "pymongo>=4.11.0",
+    "python-dotenv>=1.1.1",
+]

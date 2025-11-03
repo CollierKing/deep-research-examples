@@ -206,3 +206,12 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 *.txt
+dev/
+minimal_test/
+.DS_Store
+# LangGraph checkpoints
+checkpoints.db
+checkpoints.db-shm
+checkpoints.db-wal
+
+data/
