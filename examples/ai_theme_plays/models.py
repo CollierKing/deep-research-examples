@@ -104,6 +104,18 @@ class BaseCompanyInfo(BaseModel):
     company_name: str = Field(..., description="Full company name")
 
 
+class CompanyMatchBatch(BaseCompanyInfo):
+    """Model for a single company match in batch files (before ranking/consolidation)"""
+    score: float = Field(..., description="Match score from 0.0 to 1.0 indicating alignment strength")
+    matched_themes: List[str] = Field(..., description="List of themes this company aligns with")
+    alignment_factors: List[str] = Field(..., description="Specific reasons why this company matches the themes")
+
+
+class CompanyMatchBatchFile(BaseModel):
+    """Model for the structure of batch files written during company matching"""
+    matches: List[CompanyMatchBatch] = Field(..., description="List of company matches found in this batch")
+
+
 class CompanyMatch(BaseCompanyInfo):
     rank: int = Field(..., description="Ranking position (1-100)")
     score: float = Field(..., description="Match score from 0.0 to 1.0 indicating alignment strength")
@@ -134,6 +146,7 @@ class CompanyMatchesOutput(BaseModel):
 # MARK: Validation Output
 class EvidenceItem(BaseModel):
     """Single piece of evidence from a press release"""
+    date: Optional[str] = Field(None, description="Publication date of the press release")
     evidence: str = Field(..., description="The key evidence or finding from this press release")
     pr_title: str = Field(..., description="Title of the press release containing this evidence")
     pr_link: Optional[str] = Field(None, description="Link to the full press release")

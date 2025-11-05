@@ -1,7 +1,15 @@
 # MARK: - Imports
 from langchain_core.tools import tool
 from utils import query_postgres, query_mongodb
-from models import Company, PressRelease, CompanyBatchResponse, PressReleaseBatchResponse
+from models import (
+    Company,
+    PressRelease,
+    CompanyBatchResponse,
+    PressReleaseBatchResponse,
+    CompanyMatchBatch,
+    CompanyMatchBatchFile,
+    CompanyValidation,
+)
 import json
 
 
@@ -124,20 +132,63 @@ def consolidate_batch_files() -> str:
         
         for file_info in batch_files:
             file_path = file_info['path']
-            content = s3_backend.read(file_path, offset=0, limit=999999)
-            
-            # Strip line numbers
-            lines = content.split('\n')
-            clean_content = '\n'.join(line.split('|', 1)[1] if '|' in line else line for line in lines)
-            
-            # Parse and extract matches
-            batch_data = json.loads(clean_content)
-            matches = batch_data.get('matches', batch_data.get('preliminary_matches', []))
-            all_matches.extend(matches)
-            
-            # Collect themes
-            for match in matches:
-                themes_set.update(match.get('matched_themes', []))
+            try:
+                content = s3_backend.read(file_path, offset=0, limit=999999)
+                
+                # Strip line numbers
+                lines = content.split('\n')
+                clean_content = '\n'.join(line.split('|', 1)[1] if '|' in line else line for line in lines)
+                
+                # Parse and validate using Pydantic model
+                try:
+                    batch_data_raw = json.loads(clean_content)
+                except json.JSONDecodeError as e:
+                    # Show first 500 chars of the problematic JSON
+                    preview = clean_content[:500] + ('...' if len(clean_content) > 500 else '')
+                    error_detail = (
+                        f"❌ JSON PARSE ERROR in {file_path} ❌\n\n"
+                        f"Error: {str(e)}\n"
+                        f"Line {e.lineno}, Column {e.colno}\n\n"
+                        f"EXPECTED STRUCTURE (CompanyMatchBatchFile schema):\n"
+                        f"{json.dumps(CompanyMatchBatchFile.model_json_schema(), indent=2)}\n\n"
+                        f"ACTUAL CONTENT (first 500 chars):\n{preview}\n\n"
+                        f"COMMON MISTAKE: Check that alignment_factors is INSIDE each company object, not outside it!"
+                    )
+                    return json.dumps({"error": error_detail}, indent=2)
+                
+                # Validate against Pydantic model
+                try:
+                    # Support legacy 'preliminary_matches' key
+                    if 'preliminary_matches' in batch_data_raw and 'matches' not in batch_data_raw:
+                        batch_data_raw['matches'] = batch_data_raw.pop('preliminary_matches')
+                    
+                    batch_data = CompanyMatchBatchFile.model_validate(batch_data_raw)
+                except Exception as e:
+                    return json.dumps({
+                        "error": (
+                            f"❌ VALIDATION ERROR in {file_path} ❌\n\n"
+                            f"Failed to validate against CompanyMatchBatchFile schema.\n\n"
+                            f"Error: {str(e)}\n\n"
+                            f"Expected schema:\n"
+                            f"{json.dumps(CompanyMatchBatchFile.model_json_schema(), indent=2)}\n\n"
+                            f"Your data:\n"
+                            f"{json.dumps(batch_data_raw, indent=2)[:1000]}"
+                        )
+                    }, indent=2)
+                
+                # Extract matches as dicts for processing
+                matches = [match.model_dump() for match in batch_data.matches]
+                
+                all_matches.extend(matches)
+                
+                # Collect themes
+                for match in matches:
+                    themes_set.update(match.get('matched_themes', []))
+                    
+            except Exception as e:
+                return json.dumps({
+                    "error": f"Error processing {file_path}: {str(e)}"
+                }, indent=2)
         
         # Sort by score and take top N
         all_matches.sort(key=lambda x: x.get('score', 0), reverse=True)
@@ -521,30 +572,64 @@ def consolidate_validation_files() -> str:
         all_validations = []
         for file_info in validation_files:
             file_path = file_info['path']
-            content = s3_backend.read(file_path, offset=0, limit=999999)
-            
-            # Strip line numbers
-            lines = content.split('\n')
-            clean_content = '\n'.join(line.split('|', 1)[1] if '|' in line else line for line in lines)
-            
-            # Parse and add to list
-            validation_data = json.loads(clean_content)
-            if isinstance(validation_data, list):
-                all_validations.extend(validation_data)
-            else:
-                all_validations.append(validation_data)
+            try:
+                content = s3_backend.read(file_path, offset=0, limit=999999)
+                
+                # Strip line numbers
+                lines = content.split('\n')
+                clean_content = '\n'.join(line.split('|', 1)[1] if '|' in line else line for line in lines)
+                
+                # Parse JSON
+                try:
+                    validation_data_raw = json.loads(clean_content)
+                except json.JSONDecodeError as e:
+                    preview = clean_content[:500] + ('...' if len(clean_content) > 500 else '')
+                    error_detail = (
+                        f"❌ JSON PARSE ERROR in {file_path} ❌\n\n"
+                        f"Error: {str(e)}\n"
+                        f"Line {e.lineno}, Column {e.colno}\n\n"
+                        f"EXPECTED STRUCTURE (CompanyValidation schema):\n"
+                        f"{json.dumps(CompanyValidation.model_json_schema(), indent=2)}\n\n"
+                        f"ACTUAL CONTENT (first 500 chars):\n{preview}"
+                    )
+                    return json.dumps({"error": error_detail}, indent=2)
+                
+                # Validate against Pydantic model
+                try:
+                    # Handle both single validation and list (legacy format)
+                    if isinstance(validation_data_raw, list):
+                        for item in validation_data_raw:
+                            validated = CompanyValidation.model_validate(item)
+                            all_validations.append(validated)
+                    else:
+                        validated = CompanyValidation.model_validate(validation_data_raw)
+                        all_validations.append(validated)
+                except Exception as e:
+                    return json.dumps({
+                        "error": (
+                            f"❌ VALIDATION ERROR in {file_path} ❌\n\n"
+                            f"Failed to validate against CompanyValidation schema.\n\n"
+                            f"Error: {str(e)}\n\n"
+                            f"Expected schema:\n"
+                            f"{json.dumps(CompanyValidation.model_json_schema(), indent=2)}\n\n"
+                            f"Your data:\n"
+                            f"{json.dumps(validation_data_raw, indent=2)[:1000]}"
+                        )
+                    }, indent=2)
+                    
+            except Exception as e:
+                return json.dumps({
+                    "error": f"Error processing {file_path}: {str(e)}"
+                }, indent=2)
         
         # Create consolidated output using Pydantic model
         from datetime import datetime
-        from models import ValidationOutput, ValidationMetadata, CompanyValidation
+        from models import ValidationOutput, ValidationMetadata
         
-        # Convert dict validations to Pydantic models
-        validated_companies = [CompanyValidation(**v) if isinstance(v, dict) else v for v in all_validations]
-        
-        # Create output using model
+        # all_validations already contains validated CompanyValidation objects
         consolidated = ValidationOutput(
-            total_validations=len(validated_companies),
-            validations=validated_companies,
+            total_validations=len(all_validations),
+            validations=all_validations,
             metadata=ValidationMetadata(
                 consolidation_date=datetime.now().strftime('%Y-%m-%d'),
                 files_processed=len(validation_files)

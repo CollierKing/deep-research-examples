@@ -440,3 +440,133 @@ class S3Backend:
             error_msg = f"Error editing file in S3: {str(e)}"
             logger.error(error_msg)
             return EditResult(error=error_msg)
+
+
+# MARK: - Company Batch Validation Middleware
+class CompanyBatchValidationMiddleware(AgentMiddleware):
+    """
+    Validates that company batch files include ALL companies from the query.
+    Prevents the LLM from filtering companies during the matching process.
+    """
+    
+    def __init__(self):
+        super().__init__()
+        self.last_batch_company_count = None
+        self.last_batch_offset = None
+        print(f"{Back.YELLOW}{Fore.BLACK} CompanyBatchValidationMiddleware initialized {Style.RESET_ALL}")
+    
+    def after_tool_call(self, state, runtime):
+        """Track company counts from postgres queries."""
+        messages = state.get("messages", [])
+        if not messages:
+            return None
+        
+        last_message = messages[-1]
+        tool_calls = getattr(last_message, "tool_calls", [])
+        
+        for tool_call in tool_calls:
+            # Track get_companies_from_postgres calls
+            if tool_call.get("name") == "get_companies_from_postgres":
+                # Parse the result to get company count
+                if hasattr(last_message, "content"):
+                    try:
+                        result = json.loads(last_message.content)
+                        if "companies" in result:
+                            company_count = len(result["companies"])
+                            offset = result.get("offset", 0)
+                            self.last_batch_company_count = company_count
+                            self.last_batch_offset = offset
+                            logger.info(
+                                f"{Fore.CYAN}📊 Batch Query: offset={offset}, "
+                                f"returned {company_count} companies{Style.RESET_ALL}"
+                            )
+                            print(
+                                f"{Fore.CYAN}📊 TRACKING: Got {company_count} companies "
+                                f"from offset {offset} - expecting ALL in batch file{Style.RESET_ALL}"
+                            )
+                    except:
+                        pass
+        
+        return None
+    
+    def before_tool_call(self, state, runtime):
+        """Validate batch files before writing."""
+        messages = state.get("messages", [])
+        if not messages:
+            return None
+        
+        last_message = messages[-1]
+        tool_calls = getattr(last_message, "tool_calls", [])
+        
+        for tool_call in tool_calls:
+            # Intercept write_file calls for batch files
+            if tool_call.get("name") == "write_file":
+                args = tool_call.get("args", {})
+                file_path = args.get("file_path", "")
+                content = args.get("content", "")
+                
+                # Check if this is a company batch file
+                if "company_matches/batch_" in file_path and file_path.endswith(".json"):
+                    # Parse the batch file content
+                    try:
+                        batch_data = json.loads(content)
+                        matches = batch_data.get("matches", [])
+                        match_count = len(matches)
+                        
+                        # Validate against expected count
+                        if self.last_batch_company_count is not None:
+                            expected_count = self.last_batch_company_count
+                            
+                            logger.info(
+                                f"{Fore.YELLOW}🔍 Validating {file_path}: "
+                                f"{match_count} matches vs {expected_count} companies{Style.RESET_ALL}"
+                            )
+                            
+                            if match_count < expected_count:
+                                error_msg = (
+                                    f"\n{'='*80}\n"
+                                    f"❌ FILTERING DETECTED - BATCH FILE VALIDATION FAILED ❌\n"
+                                    f"{'='*80}\n\n"
+                                    f"File: {file_path}\n"
+                                    f"Companies returned from PostgreSQL: {expected_count}\n"
+                                    f"Companies in your batch file: {match_count}\n"
+                                    f"Missing companies: {expected_count - match_count}\n\n"
+                                    f"🚫 YOU CANNOT FILTER OR SKIP COMPANIES DURING MATCHING!\n\n"
+                                    f"REQUIRED BEHAVIOR:\n"
+                                    f"1. Include EVERY company returned from get_companies_from_postgres\n"
+                                    f"2. If a company has ANY connection to ANY theme → include it\n"
+                                    f"3. Assign an honest score (even if low like 0.1, 0.5, 1.0)\n"
+                                    f"4. ONLY exclude companies with absolutely ZERO theme relevance\n"
+                                    f"5. Your job is to FIND matches, not to FILTER them\n\n"
+                                    f"WHAT TO DO NOW:\n"
+                                    f"- Review all {expected_count} companies from the last query\n"
+                                    f"- Add the {expected_count - match_count} missing companies to your batch\n"
+                                    f"- Be inclusive - when in doubt, include the company with a lower score\n"
+                                    f"- Write a batch file with ALL {expected_count} companies\n\n"
+                                    f"RETRY this write_file call with the complete batch.\n"
+                                    f"{'='*80}\n"
+                                )
+                                
+                                print(f"{Fore.RED}{error_msg}{Style.RESET_ALL}")
+                                logger.error(error_msg)
+                                
+                                # Return error to force retry
+                                return {"error": error_msg}
+                            
+                            elif match_count == expected_count:
+                                print(
+                                    f"{Fore.GREEN}✅ VALIDATION PASSED: All {expected_count} companies "
+                                    f"included in batch file{Style.RESET_ALL}"
+                                )
+                                logger.info(f"✅ Batch validation passed: {match_count} matches")
+                            
+                            # Reset tracker after validation
+                            self.last_batch_company_count = None
+                            self.last_batch_offset = None
+                            
+                    except json.JSONDecodeError as e:
+                        logger.warning(f"Could not parse batch file for validation: {e}")
+                    except Exception as e:
+                        logger.warning(f"Batch validation error: {e}")
+        
+        return None
