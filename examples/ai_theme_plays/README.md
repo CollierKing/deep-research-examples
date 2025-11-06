@@ -9,7 +9,7 @@ DeepAgents is a framework for building LLM agents that can handle complex, multi
 Takes an earnings transcript (like Jensen Huang's GTC keynote) and finds companies that align with the themes mentioned. The workflow:
 
 1. Extract themes from the transcript
-2. Match ~2400 companies against those themes
+2. Match ~400 companies against those themes
 3. Validate matches using press release evidence
 4. Rank the top 100 by strength of alignment
 
@@ -24,7 +24,7 @@ graph LR
     C -->|Subagent 3| D[Validations]
     D -->|Subagent 4| E[Rankings]
     
-    F[(PostgreSQL<br/>2400 companies)] -.->|batches of 50| C
+    F[(PostgreSQL<br/>400 companies)] -.->|batches of 100| C
     G[(MongoDB<br/>Press Releases)] -.->|one at a time| D
     
     style A fill:#e1f5ff
@@ -53,10 +53,10 @@ themes = transcript_analyzer.run(transcript_file)
 # 2. Match companies (processes ALL companies in batches)
 offset = 0
 while has_more:
-    batch = query_postgres(offset, limit=50)
+    batch = query_postgres(offset, limit=100)
     matches = evaluate_against_themes(batch, themes)
     write_file(f"company_matches/batch_{offset:04d}.json", matches)
-    offset += 50
+    offset += 100
 
 consolidated = consolidate_all_batches()
 
@@ -76,9 +76,9 @@ The challenge with this workflow isn't just the work itself—it's making sure t
 
 ### The Problems
 
-1. **LLMs skip items in loops** - "I'll just process a sample instead of all 2400 companies"
+1. **LLMs skip items in loops** - "I'll just process a sample instead of all 400 companies"
 2. **Inconsistent JSON structure** - Fields end up outside objects, required fields missing
-3. **Context overflow** - Can't fit all 2400 companies + press releases in memory at once
+3. **Context overflow** - Can't fit all 400 companies + press releases in memory at once
 4. **Schema drift** - Hardcoded examples in prompts get out of sync with Pydantic models
 
 ### The Solutions
@@ -120,7 +120,7 @@ Tools track state and reject invalid operations:
 class SequentialBatchState:
     def __init__(self):
         self.expected_offset = 0
-        self.batch_size = 50
+        self.batch_size = 100
     
     def validate_and_update(self, offset):
         if offset != self.expected_offset:
@@ -212,9 +212,9 @@ This creates a closed loop where the LLM can't proceed without following the rul
 Right now, if the workflow is interrupted, you start over. The next step is making it resumable.
 
 **Current State:**
-- S3 stores intermediate files (`batch_0000.json`, `batch_0050.json`, etc.)
+- S3 stores intermediate files (`batch_0000.json`, `batch_0100.json`, etc.)
 - But agent state isn't checkpointed
-- If crashed at batch 150, you'd restart from batch 0
+- If crashed at batch 200, you'd restart from batch 0
 
 **Goal: S3-Backed Checkpointer**
 
@@ -271,4 +271,4 @@ else:
 4. Add resume logic in `main.py` to check for existing checkpoints
 5. Test interruption scenarios (network failure, manual stop, etc.)
 
-This would make the workflow fully durable—crash at company 1500? Resume right there.
+This would make the workflow fully durable—crash at company 200? Resume right there.
