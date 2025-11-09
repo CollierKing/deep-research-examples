@@ -1,0 +1,895 @@
+AI factories are rising. Built in America
+for scientists, engineers, and dreamers across universities,
+startups, and industry. I think we want to try to reach new
+heights as a civilization, discovering the nature of the universe.
+And now, American innovators are clearing the way for abundance.
+saving lives, shaping vision into reality,
+lending us a hand, and delivering the future.
+We will soon power it all with unlimited clean energy.
+We will extend humanity's reach to the stars.
+[Music]
+This is America's next Apollo moment. Together,
+we take the next great leap to boldly go where no one has gone before.
+And here is where it all begins. [Music]
+Welcome to the stage, Nvidia founder and CEO, Jensen Wong.
+Washington DC. Washington DC. Welcome to GTC.
+[Music] It's hard not to be sentimental and proud of America. I got to tell you
+that. Was that video amazing? Thank you.
+Nvidia's creative team does an amazing job. Welcome to GTC. We have a lot to cover with you today. Um, GTC is where
+we talk about industry, science, computing,
+the present, and the future. So, I've got a lot to cover with you today, but
+before I start, I want to thank all of our partners who helped sponsor this great event. You'll see all of them
+around the show. They're here to meet with you and uh uh really great. We
+couldn't do what we do without all of our ecosystem partners. Uh, this is the Super Bowl of AI, people say. And
+therefore, every Super Bowl should have an amazing pregame show. What do you guys think about the pregame show and
+our allstar allstar athletes and allstar cast? Look at these guys.
+Somehow I turned out the buffest. What do you guys think? I don't know if I had something to do
+with that. Nvidia invented a new computing model
+for the first time in 60 years. As you saw in the video, a new computing model
+rarely comes about. It takes an enormous amount of time and set of conditions. We
+observed, we invented this computing model because we wanted to solve problems that generalpurpose computers,
+normal computers could not. We also observed that someday transistors will
+continue the number of transistors will grow but the performance and the power of transistors
+will slow down that Moore's law will not continue beyond limited by the laws of
+physics and that moment has now arrived dinard scaling has stopped it's called
+dinard scaling dinard scaling has stopped nearly a decade ago and in fact the transistor performance and its power
+associated has slowed tremendously and yet the number of transistor continued. We made
+this observation a long time. Apply parallel computing, add that to a sequential processing CPU that we could
+extend the capabilities of computing well beyond well beyond and that moment
+has really come. We have now seen that inflection point. Accelerated computing
+its moment has now arrived. However, accelerated computing is a fundamentally
+different programming model. You can't just take a CPU software software
+written by hand executing sequentially and put it onto a GPU and have it run
+properly. In fact, if you just did that, it actually runs slower. And so you have
+to reinvent new algorithms, you have to create new libraries, you have to in
+fact rewrite the application, which is the reason why it's taken so long. It's
+taken us nearly 30 years to get here. But we did it one domain at a time.
+This is the treasure of our company. Most people talk about the GPU. The GPU
+is important, but without a programming model that sits on top of it, and without dedication to that programming
+model, keeping it compatible over generations, we're now CUDA 13 coming up with CUDA 14.
+hundreds of millions of GPUs running in every single computer perfectly
+compatible. If we didn't do that, then developers wouldn't target this
+computing platform. If we didn't create these libraries, then developers wouldn't know how to use the algorithm
+and use the architecture to its fullest. One application after another. I mean, these this is really the this is really
+the treasure of our company. KU Litho, computational lithography. It took us nearly seven years to get
+here with KU Litho and now TSMC uses it, Samsung uses it, ASML uses it. This is
+an incredible library for computational lithography. The first step of making a
+chip. Sparse solvers for CAE applications. Co-op, a numerical optimization has
+broken just about every single record. The traveling salesperson problem. How to connect millions of products with
+millions of customers in the supply chain. Warp Python solver for CUDA for
+simulation. QDF a dataf frame approach basically accelerating
+SQL dataf frame pro dataf frame databases. Um this library is the one
+that started AI alto together. CUD coup DNN the the the library on top of it called
+Megatron Core made it possible for us to simulate and train extremely large
+language models. The list goes on. Uh Monai really really important the number
+one medical imaging AI framework in the world. Uh, by the way, we're not going to talk a lot about
+healthcare today, but be sure to see Kimberly's keynote. She's going to talk a lot about the work that we do in
+healthcare. And the list goes on. Uh, genomics processing, Ariel, pay attention. We're going to do something
+really important here today. Um, coup quantum quantum computing. This is just a representative of 350 different
+libraries in our company. And each one of these libraries redesigned the algorithm necessary for accelerated
+computing. Each one of these libraries made it possible for all of the ecosystem partners to take advantage of
+accelerated computing. And each one of these libraries opened new markets for
+us. Let's take a look at what CUDA X can do.
+Ready? Go.
+Heat. [Music]
+[Music] Heat.
+[Music]
+Heat
+[Music]
+up here.
+[Music]
+Heat. Heat.
+Heat. Heat. [Music] [Applause]
+[Music]
+[Music]
+Heat.
+Heat. [Music]
+Is that amazing? Every
+everything you saw was a simulation. There was no art, no animation. This is
+the beauty of mathematics. This is deep computer science, deep math, and it's just incredible how beautiful it is.
+Every industry was covered from healthcare and life sciences to manufacturing, robotics, autonomous
+vehicles, computer graphics, even video games. That first shot that you saw was
+the first application Nvidia ever ran. And that's where we started in 1993. And
+we kept believing in what we were trying to do. And it took, it's hard to imagine that you could see that first virtual
+fighter scene come alive and that same company believed that we would be here
+today. It's just a really, really incredible journey. I want to thank all the NVIDIA employees for everything that
+you've done. It's really incredible.
+We have a lot of industries to cover today. I'm going to cover AI, 6G,
+quantum, models, enterprise computing, robotics, and
+factories. Let's get started. We have a lot to cover, a lot of big announcements to make, a lot of new partners that
+would very much surprise you. Telecommunications is the backbone, the lifeblood of our
+economy, our industries, our national security. And yet,
+ever since the beginning of wireless where we defined the technology, we
+defined the global standards, we exported American technology all around the world so that the world can build
+on top of American technology and standards. It has been a long time since that's happened. wireless technology
+around the world largely today deployed on foreign technologies.
+Our fundamental communication fabric built on foreign technologies
+that has to stop and we have an opportunity to do that especially during
+this fundamental platform shift. As you know computer technology is at the
+foundation of literally every single industry. It is the single most important instrument of science. It's
+the single most important instrument of industry. And I just said we're going through a
+platform shift. That platform shift should be the once-in-a-lifetime opportunity for us to get back into the
+game for us to start innovating with American technology. Today, today we're
+announcing that we're going to do that. We have a big partnership with Nokia.
+Nokia is the second largest telecommunications maker in the world.
+It's a three trillion dollar industry. Infrastructure is hundreds of billions of dollars. There are millions of base
+stations around the world. If we could partner, we could build on
+top of this incredible new technology fundamentally based on accelerated
+computing and AI. and for United States, for America to be at the center of the
+next revolution in 6G. So today we're announcing that Nvidia has a new product
+line. It's called the Nvidia Arc. The aerial radio network computer aerial RAM
+computer arc. Arc is built from three fundamental new technologies. the gray
+CPU, the Blackwell GPU, and our ConnectX Melanox Connect X networking designed
+for this application. And all of that makes it possible for us to run this
+library, this CUDA X library that I mentioned earlier called Aerial. Ariel
+is essentially a wireless communication system running on top of
+CUDA X. We're going to we're going to create for the first time a
+softwaredefined programmable computer that's able to communicate wirelessly and do AI
+processing at the same time. This is completely revolutionary. We call it
+Nvidia Arc. And Nokia is going to work with us to integrate our technology, rewrite their stack.
+This is a company with 7,000 fundamental essential 5G patents.
+Hard to imagine any greater leader in telecommunications. So, we're going to partner with Nokia. They're going to
+make Nvidia Arc their future base station. Nvidia Arc is also compatible
+with Airscale, the current Nokia base stations. So what that means is we're
+going to take this new technology and we'll be able to upgrade millions of base stations around the world with 6G
+and AI. Now 6G and AI is really quite fundamental in the sense that for the
+first time we'll be able to use AI technology AI for RAN to make radio communications
+more spectral efficient doing using artificial intelligence
+reinforcement learning adjusting the beam forming in real time in context depending on the surroundings and the
+traffic and the mobility the weather all of that could be taken into account so
+that we could improve spectral efficiency. Spectral efficiency consumes about 1 and a half to 2% of the world's
+power. So improving spectral efficiency not only improves the amount of data we
+can put through wireless networks without increasing the amount of energy necessary. The other thing that we could
+do AI for RAN is AI on RAM. This is a brand
+new opportunity. Remember the internet enabled communications but amazingly
+smart companies AWS built a cloud computing system on top of the internet.
+We are now going to do the same thing on top of the wireless telecommunications
+network. This new cloud will be an edge
+industrial robotics cloud. This is where AI on RAN, the first is AI for RAN to
+improve radio radio spectrum efficiency. The second is AI on RAN essentially
+cloud computing for wireless telecommunications. Cloud computing will be able to go right out to the edge where data centers are
+not are not because we have base stations all over the world. This announcement is really exciting. Justin
+Hodar, the CEO, I think he's somewhere in the room. Thank you for your partnership. Thank you for helping
+United States bring telecommunication technology back to America. This is really a fantastic, fantastic
+partnership. Thank you very much.
+That's the best way to celebrate Nokia. Let's talk about quantum computing.
+1981 particle physicist quantum physicist Richard Feman imagined a new type of
+computer that can simulate nature directly to simulate nature directly
+because nature is quantum. He called it a quantum computer. 40 years later the
+industry has made a fundamental breakthrough. 40 years later, just last year, a fundamental breakthrough. It is
+now possible to make one logical cubit. One logical cubit. One
+logical cubit that's coherent, stable, and error corrected in past. Now that
+one logical cubit consists of could be sometimes tens, sometimes hundreds of physical cubits all working together. As
+you know, cubits, these particles are incredibly fragile.
+They could be unstable very easily. Any observation, any sampling of it, any
+environmental condition causes it to become decoherent. And so it takes
+extraordinarily well-controlled environments and now also a lot of different physical cubits for them to
+work together and for us to do error correction on these what are called
+auxiliary or syndrome cubits for us to error correct them and infer what that
+logical cubit state is. There are all kinds of different types of quantum computers. Superconducting,
+photonic, trapped ion, stable atom, all kinds of different ways to create a
+quantum computer. Well, we now realize that it's essential for us to connect a
+quantum computer directly to a GPU supercomput so that we could do the error correction, so that we could do
+the artificial intelligence calibration and control of the quantum computer and
+so that we could do simulations collectively working together. the right
+algorithms running on the GPUs, the right algorithms running on the QPUs and
+the two processors, the two computers working side by side. This is the future
+of quantum computing. Let's take a look.
+There are many ways to build a quantum computer. Each uses cubits, quantum bits
+as its core building block. But no matter the method, all cubits,
+whether superconducting cubits, trapped ions, neutral atoms, or photons, share
+the same challenge. They're fragile and extremely sensitive to noise. Today's
+Qbits remain stable for only a few hundred operations. But solving meaningful problems requires trillions
+of operations. The answer is quantum error correction. Measuring disturbs a
+cubit which destroys the information inside it. The trick is to add extra
+cubits in tangle so that measuring them gives us enough information to calculate where errors occurred without damaging
+the cubits we care about. It's brilliant but needs beyond state-of-the-art
+conventional compute. That's why we built NVQLink, a new interconnect architecture that directly
+connects quantum processors with NVIDIA GPUs. Quantum error correction requires
+reading out information from Qbits, calculating where errors occur and
+sending data back to correct them. MVQLink is capable of moving terabytes of data to and from quantum hardware,
+the thousands of times every second needed for quantum error correction.
+At its heart is CUDAQ, our open platform for quantum GPU computing. Using MVQL
+link and CUDAQ, researchers will be able to do more than just error correction. They will also be able to orchestrate
+quantum devices and AI supercomputers to run quantum GPU applications.
+Quantum computing won't replace classical systems. They will work together fused into one accelerated
+quantum supercomputing platform.
+Wow, this is a really long stage.
+You know, CEOs, we don't just sit at our desk typing. It's this is a physically job. Physical job. So, so today we're
+announcing the MV MVQ link MVQL link and it's made possible by two things. Of
+course, this interconnect that does quantum computer control and calibration,
+quantum error correction as well as connects two computers, the QPU and our
+GPU supercomputers to do hybrid simulations.
+It is also completely scalable. It doesn't just do error correction for today's number of few cubits. It does
+error correction for tomorrow where we're going to essentially scale up these quantum computers from the
+hundreds of cubits we have today to tens of thousands of cubits, hundreds of thousands of cubits in the future. So we
+now have an architecture that can do control, co- simulation, quantum error
+correction and scale into that future. The industry support has been incredible
+between the invention of CUDA Q. Remember CUDA was designed for GPU CPU
+accelerated computing. Basically using both processors to do use the right tool
+to do the right job. Now CUDA Q has been extended beyond CUDA so that we could
+support QPU and have the two processors QPU and the GPU work and have
+computation move back and forth within just a few microsconds. The essential latency to be able to cooperate with the
+quantum computer. So now CUDAQ is such an incredible breakthrough adopted by so many different developers. We are
+announcing today 17 different quantum computer industry companies supporting
+the MVQ link and and I'm so excited about this eight different DOE labs
+Berkeley Brook Haven Fermy Labs in Chicago Lincoln Laboratory Los Alamos
+Oakidge Pacific Northwest San Diego Lancho Lab just about every single DOE
+lab has engaged us working with our ecosystem of quantum computer companies and these quantum controllers so that we
+could integrate quantum computing in into the future of science.
+Well, I have one more additional announcement to make. Today, we're announcing that the Department of Energy
+is partnering with NVIDIA to build seven new AI supercomputers to advance our
+nation's science.
+I have to have a shout out for Secretary Chris Wright. He has brought so much energy to the DOE, a surge of energy, a
+surge of passion to make sure that America leads science. Again as I mentioned computing is the fundamental
+instrument of science and we are going through several platform shifts on the one hand we're going to accelerated
+computing that's why every future supercomputer will be GPUbased supercomputer we're going to AI so that AI and
+principled solvers principled simulation principal physics simulation is not going to go away but it could be
+augmented enhanced scaled use surrogate models AI models working together. We
+also know that principal solvers, classical computing, could be enhanced to understand the state of nature using
+quantum computing. We also know that in the future, we have so much signal, so
+much data we have to sample from the world, remote sensing is more important than ever. And these laboratories are
+impossible to experiment at the scale and speed we need to unless they're robotic factories, robotic laboratories.
+So all of these different technologies are coming into science at exactly the same time. Secretary Wright understands
+this and he wants the DOE to take this opportunity to supercharge themselves
+and make sure the United States stay at the forefront of science. I want to thank all of you for that. Thank you.
+Let's talk about AI. What is AI? Most people would say that
+AI is a chatbot and it it's rightfully so. There's no question that chat GPT is
+at the forefront of what people would consider AI. However, just as you see
+right now, these scientific supercomputers are not going to run chatbots. They're going to do basic
+science. Science, AI, the world of AI is much much more than a chatbot. Of
+course, the chatbot is extremely important and AGI is fundamentally critical. Deep computer science,
+incredible computing, great breakthroughs are still essential for AGI. But beyond that, AI is a lot more.
+AI is in fact, I'm going to describe AI in a couple different ways. That's first
+way, the first way you think about AI is that it has completely reinvented the
+computing stack. The way we used to do software was hand coding. Hand coding software running on
+CPUs. Today AI is machine learning training
+data inensive programming if you will trained and learned by AI that runs on a
+GPU. In order to make that happen, the entire computing stack has changed.
+Notice you don't see Windows up here. You don't see CPU up here. You see a whole different a whole fundamentally
+different stack. Everything from the need for energy. And this is another area where our administration, President
+Trump gets deserves enormous credit. His pro- energy initiative, his recognition
+that this industry needs energy to grow. It needs energy to advance. and we need energy to win. His recognition of that
+and putting the weight of the nation behind pro- energy growth completely
+changed the game. If this didn't happen, we could have been in a bad situation. And I want to thank President Trump for
+that.
+On top of energy are these GPUs and these GPUs are connected into built into
+infrastructure that I'll show you later. On top of this infrastructure which in consists of giant data centers like
+easily many times the size of this room enormous amount of energy which then
+transfer transforms the energy through this new machine called GPU supercomputers to generate numbers.
+These numbers are called tokens. the language, if you will, the
+computational unit, the vocabulary of artificial intelligence. You can
+tokenize almost anything. You can tokenize, of course, the English word. You can tokenize images. That's the
+reason why you're able to recognize images or generate images, tokenize video, tokenize 3D structures. You could
+tokenize chemicals and proteins and genes. You could tokenize cells,
+tokenize almost anything with structure, anything with information content.
+Once you could tokenize it, AI can learn that language and the meaning of it.
+Once it learns the meaning of that language, it can translate. It can
+respond just like you respond just like you interact with chat GBT. And it could generate just as chat GBD can generate.
+So all of the fundamental things that you see Chad GPD do, all you have to do
+is imagine what if it was a protein, what if it was a chemical, what if it was a 3D structure like a factory, what
+if it was a robot and the token was understanding behavior
+and tokenizing motion and action. All of those concepts are basically the same
+which is the reason why AI is making such extraordinary progress and on top
+of these models are applications. Transformers transformers is not a universal model.
+It's incredibly effective model but there's no one universal model. It's
+just that AI has universal impact. There are so many different types of models. There's in the last several years we
+enjoyed the invention and went through the innovation breakthroughs of multimodality.
+There's so many different types of models. There's CNN models, competition neuronet network models, there's state
+space models, there graph neuronet network models, multimodal models of course, all the different tokenizations
+and token methods that I just described. You could have models that are spatial in its understanding optimized for
+spatial awareness. You could have models that are optimized for long sequence recognizing subtle information over a
+long period of time. There are so many different types of models.
+On top of these models, architectures on top of these model architectures are applications.
+the software of the past and this is a a profound understanding a profound
+observation of artificial intelligence that the software industry of the past
+was about creating tools. Excel is a tool.
+Word is a tool. A web browser is a tool. The reason why I know these are tools is because you use them. The tools industry
+just as screwdrivers and hammers. The tools industry is only so large. In the
+case of IT tools, they could be database tools. These IT tools is about a
+trillion dollars or so. But AI is not a tool.
+AI is work. That is the profound difference. AI is
+in fact workers that can actually use tools. One of the things I'm really
+excited about is the work that Irvin's doing at Perplexity. Perplexity using web browsers to book vacations or do
+shopping. Basically an AI using tools. Cursor is an AI anantic AI system that
+we use at NVIDIA. Every single software engineer at NVIDIA uses Cursor. Has improved our productivity tremendously.
+It's basically a partner for every one of our software engineers to generate
+code and it uses a tool and the tool it uses is called VS code. So cursor is an
+AI agentic AI system that uses VS code. Well, all of these different industries
+whether it's chat bots or digital biology where we have AI assistant
+researchers or what is a robo taxi inside a robo taxi? Of course, it's
+invisible, but obviously there's a there's a AI chauffeur. That chauffeur
+is doing work. And the tool that it uses to do that work is the car. And so
+everything that we've made up until now, the whole world, everything that we've made up until now are tools. Tools for
+us to use. For the very first time, technology is now able to do work and
+help us be more productive. The list of opportunities go on and on, which is the
+reason why AI addresses the segment of the economy that it has
+never addressed. It is a few trillion dollars that sits underneath the tools
+of a hundred trillion dollar global economy. Now, for the first time, AI is
+going to engage that hundred trillion dollar economy and make it more productive, make it grow faster, make it
+larger. We have a severe shortage of labor. Having AI that augments labor is
+going to help us grow. Now what's interesting about this from a technology industry perspective also is that in
+addition to the fact that AI is new technology that addresses new segments of the economy AI in itself is also a
+new industry this token as I was explaining earlier
+these numbers after you tokenize all these different modalities of information there's a
+factory that needs to produce these numbers unlike the computer industry indry and the chip industry of the past.
+Notice if you look at the chip industry of the past, the chip industry represents about 5 to 10%
+maybe less 5% or so of a multi- trillion
+dollar few trillion dollar IT industry. And the reason for that is because it doesn't take that much computation to
+use Excel. It doesn't take that much computation to use browsers. It doesn't take that much computation to use word.
+We do the computation. But in this new world,
+there needs to be a computer that understands context all the time. It
+can't precomputee that because every time you use the computer for AI, every time you ask the AI to do something, the
+context is different. So, it has to process all of that information. Environmental, for example, in the case
+of a self-driving car, it has to process the context of the car. context processing. What is the instruction
+you're asking the AI to do? Then it's got to go and break down the problem step by step, reason about it, and come
+up with a plan and execute it. Every single one of that step requires enormous number of tokens to be
+generated which is the reason why we need a new type of system and I call it an AI factory. It's an AI factory for
+short. It's unlike a data center of the past. It's an AI factory because
+this factory produces one thing unlike the data centers of the past that does
+everything. Stores files for all of us, runs all kinds of different applications. You could use that data center like you can use your computer
+for all kinds of applications. You could use it to play game one day. You could use it to browse the web. You could use it, you know, to do your accounting. And
+so that is a computer of the past, a universal generalpurpose computer.
+The computer I'm talking about here is a factory. It runs basically one thing. It runs AI and its purpose, its purpose is
+designed to produce tokens that are as valuable as possible. Meaning they have
+to be smart. And you want to produce these tokens at incredible rates because when you ask an AI for something, you
+would like it to respond. And notice during peak hours, these AIs are now
+responding slower and slower because it's got a lot of work to do for a lot of people. And so you wanted to produce
+valuable tokens at incredible rates and you wanted to produce it cost effectively. Every single word that I
+used are consistent with an AI factory, with a car factory or any factory. It is
+absolutely a factory. And these factories, these factories never existed before. And inside these factories are
+mountains and mountains of chips. Which brings
+to today. What happened in the last couple years? And in fact, what happened this last
+year? Something fairly profound happened this year. Actually, if you look in the
+beginning of the year, everybody has some attitude about AI. That attitude is generally this is going to be big. It's
+going to be the future. And somehow a few months ago, it kicked into turbocharge. And the reason for that is
+several things. The first is that we in the last couple
+years have figured out how to make AI much much smarter rather than just pre-training.
+Pre-training basically says let's take all of the all of the information that humans have ever created. Let's give it
+to the AI to learn from. It's essentially memorization and generalization.
+It's no it's not unlike going to school back when we were kids. the first stage of learning. Pre-training was never
+meant just as preschool was never meant to be the end of education.
+Pre-training, preschool was simply teaching you the basic skills of
+intelligence so that you can understand how to learn everything else. Without vocabulary, without understanding of
+language and how to communicate, how to think, it's impossible to learn everything else. The next is
+post-training. Post-training after pre-training is teaching you skills. Skills to solve problem. Break down
+problems. Reason about it. How to solve math problems. How to code. How to think
+about these problems step by step. Use first principal reasoning. And then
+after that is where computation really kicks in. As you know for many of us,
+you know, we went to school and that's in my case decades ago. But ever since
+I've learned more, thought about more. And the reason for that is because we're constantly grounding oursel in new
+knowledge. We're constantly doing research and we're constantly thinking. Thinking is really what intelligence is
+all about. And so now we have three fundamental technology skills. We have
+these three technologies. Pre-training, which still requires enormous enormous amount of computation. We now have post
+training which uses even more computation and now thinking puts
+incredible amounts of computation load on the infrastructure because it's thinking on our behalf for every single
+human. So the amount of computation necessary for AI to think inference is
+really quite extraordinary. Now I used to hear people say that inference is easy. Nvidia should do training. Nvidia
+is going to do, you know, they are really good at this, so they're going to do training. The inference was easy. How
+could thinking be easy? Regurgitating memorized content is easy. Regurgitating
+the multiplication table is easy. Thinking is hard, which is the reason
+why these three scales, these three new scaling laws, which is all of it in in
+full steam, has put so much pressure on the amount of computation. Now another
+thing has happened from these three scaling laws. We get smarter models and these smarter models need more compute.
+But when you get smarter models, you get more intelligence. People use it
+as if anything happens. I want to be the first one out.
+Jazz. I'm sure it's fine. Probably just lunch. My stomach.
+Was that me? And so, so where was I? The smarter your models are, the smarter your models are,
+the more people use it. It's now more grounded. It's able to reason. It's able
+to solve problems it never learn how to solve before because it could do research. Go learn about it. come back,
+break it down, reason about how to solve your how to answer your question, how to solve your problem, and go off and solve
+it. The amount of thinking is making the models more intelligent. The more intelligent it is, the more people use
+it. The more intelligent it is, the more computation is necessary. But here's what happened.
+This last year, the AI industry turned the corner.
+Meaning that the AI models are now smart enough. They're making they're worthy.
+They're worthy to pay for. Nvidia pays for every license of Cursor. And we
+gladly do it. We gladly do it because Curser is helping a several hundred,000
+employee software engineer or AI researcher be many, many times more productive. So, of course, we'd be more
+than happy to do that. These AI models have become good enough that they are
+worthy to be paid for. Cursor, 11 Labs, Syntheasia, A Bridge, Open Evidence, the
+list goes on. Of course, open AI, of course, Claude. These models are now so
+good that people are paying for it. And because people are paying for it and using more of it, and every time they
+use more of it, you need more compute. We now have two exponentials.
+These two exponentials, one is the exponential compute requirement of the three scaling law. And the second
+exponential, the more pe the smarter it is, the more people use it, the more people use it, the more computing it
+needs. Two exponentials now putting pressure on the world's computational
+resource at exactly the time when I told you
+earlier that Moore's law has largely ended. And so the question is what do we
+do? If we have these two exponential demands growing and if we don't if we
+don't find a way to drive the cost down then this positive feedback system this
+circular feedback system essentially called the virtuous cycle essential for almost any industry
+essential for any platform industry. It was essential for Nvidia. We have now reached the virtual cycle of CUDA.
+The more applications, the more the more applications people create, the more
+valuable CUDA is. The more valuable CUDA is, the more CUDA computers are purchased. The more CUDA p computers are
+purchased, more developers want to create applications for it. That virtual cycle
+for Nvidia has now been achieved after 30 years. We have achieved that also. 15
+years later, we've achieved that for AI. AI has now reached the virtual cycle and
+so the more you use it because the AI is smart and we pay for it the more profit is generated the more profit generated
+the more computes put to on the on the grid the more compute is put into AI factories the more comput the AI becomes
+smarter the smarter more more people use it more applications use it the more
+problems we can solve this virtual cycle is now spinning what we need to do is
+drive the cost down tremendously ly so that one the user experience is better
+when you prompt the AI it responds to you much faster and two so that we keep
+this virtual cycle going by driving its cost down so that it could get smarter so that more people use it so that so on
+so forth that virtual cycle is now spinning but how do we do that when
+Moore's law has really reached this limit well the answer is called co-design
+you can't just design chips and hope that things on on top of it is going to go faster. The best you could
+do in designing chips is add I don't know 50% more transistors every couple of years
+and if you added more transistors just you know we can add more transistors and TSMC's got a lot of transistor
+incredible company we just keep adding more transistors however that's all in percentages not exponentials
+we need to compound exponentials to keep this virtual cycle going extreme code
+design is the only company in the world that literally starts from a blank sheet
+of paper and can think about new fundamental architecture, computer
+architecture, new chips, new systems, new software, new model architecture,
+and new applications all at the same time. So many of the people in this room are here because you're different parts
+of that layer, that different parts of that stack and working with NVIDIA. We fundamentally rearchitect everything
+from the ground up and then because AI is such a large problem, we scale it up.
+We created a whole computer, a computer for the first time that has scaled up
+into an entire rack. That's one computer, one GPU. And then we scale it out by inventing a new AI Ethernet
+technology we call Spectrum Ethernet. Everybody will say Ethernet is Ethernet. Ethernet's hardly Ethernet.
+Ethernet spectrum X Ethernet is designed for AI performance and it's the reason
+why it's so successful. And even that's not big enough. We'll fill this entire
+room of AI supercomputers and GPUs. That's still not big enough because the
+number of applications and the number of users for AI is continuing to grow exponentially. And we connect multiple
+of these data centers together and we call that scale across spectrum XGS
+gigascale X spectrum X gigascale XGS. By
+doing so, we do code design at such a such an enormous level, such an extreme
+level that the performance benefits are shocking. Not 50% better each
+generation, not 25% better each generation, but much much more. This is
+the most extreme co-designed computer we've ever made and quite frankly made
+in modern times. Since the IBM system 360, I don't think a computer has been
+ground up, reinvented like this ever. This system was incredibly hard to
+create. I'll show you the benefits in just a second. But essentially what we've done, essentially what we've done,
+we've created otherwise Hey Janine, you can come out. It's
+you have to have to meet me like halfway.
+All right. So, this is kind of like Captain America shield.
+So, MVLink 72, MVLink72,
+if we were to create one giant chip, one giant GPU, this is what it would look
+like. This is the level of wafer scale processing we would have to do.
+It's incredible. All of this, all of these chips are now put into one giant
+rack. Did I do that or did somebody else do that? Into that one giant rack.
+You know, sometimes I don't feel like I'm up here by myself. Just
+this one giant rack makes all of these chips work together as one. It's
+actually completely incredible. And I'll show you the benefits of that. The way it looks is this. So, thanks Janine.
+I I like this. All right, ladies and gentlemen. Janine Paul.
+I got it. In the future next, I'm just going to go like Thor.
+It's like when you're at home and and you can't reach the remote and you just go like this and somebody brings it to
+you. That's Yeah. Same idea.
+It never happens to me. I'm just dreaming about it. I'm just saying. Okay. So, so anyhow, anyhow, um we
+basically this is what we created in the past. This is MVLink MVLink 8. Now,
+these models are so gigantic. The way we solve it is we turn this model, this gigantic model, into a whole bunch of
+experts. It's a little bit like a team. And so, these experts are good at certain types of problems. And we
+collect a whole bunch of experts together. And so, this giant multi- trillion dollar AI model has all these
+different experts and we put all these different experts on a GPU. Now, this is NVLink 72.
+We could put all of the chips into one giant fabric and every single expert can
+talk to each other. So the master the the primary expert could talk to all of the true work and all of the necessary
+contexts and prompts and bunch of data that we have to bunch of tokens that we have to send to all of the experts. The
+experts would whichever one of the experts are selected to solve the answer would then go off and try to respond and
+then it would go off and do that layer after layer after layer. Sometimes eight, sometimes 16 and sometimes these
+experts, sometimes 64, sometimes 256. But the point is there are more and more
+and more experts. Well, here MVLink 72, we have 72 GPUs. And because of that, we
+could put four experts in one GPU. The most important thing you need to do for
+each GPU is to generate tokens, which is the amount of bandwidth that you have in HBM memory. We have one H one GPU
+generating thinking for four experts versus here because each one of the
+computers can only put eight GPUs. We have to put 32 experts into one GPU. So
+this one GPU has to think for 32 experts versus this system each GPU only has to
+think for four. And because of that the speed difference is incredible. And this
+just came out. This is the benchmark done by semi analysis. They do a really really thorough job and they benchmarked
+all of the GPUs that are benchmarkable and it turns out it's not that many. If you look at the list of looks list of
+GPUs you could actually benchmark is like 90% Nvidia. Okay. And but so we're
+comparing ourselves to ourselves but the second best GPU in the world is the H200 and runs all the workload.
+Grace Blackwell per GPU is 10 times the performance.
+Now, how do you get 10 times the performance when it's only twice the number of transistors?
+Well, the answer is extreme code design. And by understanding the nature of the
+future of AI models and we're thinking across that entire stack, we can create architectures for the future. This is a
+big deal. It says we can now respond a lot faster. But this is the even bigger deal. This next one, look at this. This
+says that the lowest cost tokens in the world
+are generated by Grace Blackwell MVLink72. The most expensive computer.
+On the one hand, GB200 is the most expensive computer. On the other hand, its token generation capability is so
+great that it produces it at the lowest cost because the tokens per second
+divided by the t by the total cost of ownership of Grace Blackwell is so good.
+It is the lowest cost way to generate tokens. By doing so, delivering
+incredible performance, 10 times the performance, incre delivering 10 times lower cost, that virtual cycle can
+continue. Which then brings me to this one. I just saw this literally
+yesterday. This is uh the CSP capex. People are asking me about capex these
+days and um this is a good way to look at it. In fact, the capex of the top six CSPs and this one, this one is Amazon,
+Corewave, Google, Meta, Microsoft, and Oracle. Okay, these CSPs together are
+going to invest this much in capex. And I would I would tell you the timing
+couldn't be better. And the reason for that is now we have the Grace Blackwell MVLink72 in all volume production,
+supply chain everywhere in the world is manufacturing it. So we can now deliver to all of them this new architecture so
+that the capex invests in instruments computers that deliver the best TCO. Now
+underneath this there are two things that are going on. So when you look at this it's actually fairly extraordinary
+and it's fairly extraordinary anyhow. But what's happening under underneath is this there are two platform shifts
+happening at the same time. One platform shift is going from general purpose computing to accelerated
+computing. Remember accelerated computing as I mentioned to you before it does data processing, it does image
+processing, computer graphics, it does com comput computation of all kinds. It runs SQL, runs spark, it runs, you know,
+you you ask it, you tell us what you need to have run, and I'm fairly certain we have an amazing library for you. You
+could be, you know, a data center trying to make masks to manufacture semiconductors. we have a great library
+for you. And so underneath irrespective of AI, the world is moving from general
+purpose computing to accelerated computing irrespective of AI. And in fact, many of the CSPs already have
+services that have been here long ago before AI. Remember, they were invented in the era of machine learning.
+classical machine learning algorithms like XG boost, algorithms like um uh
+data frames that are used for recommener systems, collaborative filtering, content filtering, all of those
+technologies were created in the old days of general purpose computing. Even
+those algorithms, even those architectures are now better with accelerated computing. And so even
+without AI, the world's CSPs are going to invest into acceleration. Nvidia's
+GPU is the only GPU that can do all of that plus AI. And ASIC might be able to
+do AI, but it can't do any of the others. Nvidia could do all of that, which
+explains why it is so safe to just lean into Nvidia's architecture. We have now
+reached our virtual cycle, our inflection point. And this is quite extraordinary. I have many partners in
+the room and all of you are part of our supply chain and I know how hard you
+guys are working. I want to thank all of you how hard you are working and thank you very much.
+Now I'm going to show you why this is what's going on in our company's
+business. We're seeing extraordinary growth for Grace Blackwell for all the reasons that I just mentioned. It's
+driven by two exponentials. We now have visibility. I think we're probably the first
+technology company in history to have visibility into half a trillion dollars
+of cumulative blackwell and early ramps of Reubin
+through 2026. And as you know, 2025 is not over yet and 2026 hasn't started.
+This is how much business is on the books. Half a trillion dollars worth so
+far. Now, this is out of that. We've already shipped 6 million of the
+Blackwells in the first several quarters. I guess the first four quarters of production, three and a half
+quarters of production. We still have one more quarter to go for 2025. And then we have four quarters. So the next
+five quarters there's $500 million $500 billion half a trillion dollars. That's
+five times the growth rate of Hopper. That kind of tells you something. This
+is Hopper's entire life. This doesn't include China and and um and Asia. So this is just uh the West. Okay? This is
+just uh we're excluding China. So Hopper in its entire life 4 million GPUs.
+Blackwell. Each one of the Blackwells has two GPUs in it in one large package.
+20 million GPUs of Blackwells in the early parts of Reuben. Incredible
+growth. So, I want to thank all of our supply chain partners. Everybody, I know how hard you guys are working. I made a
+video to celebrate your work. Let's play it.
+[Music] The age of AI has begun.
+Blackwell is its engine, an engineering marvel. In Arizona, it starts as a blank silicon
+wafer. Hundreds of chip processing and ultraviolet lithography steps build up
+each of the 200 billion transistors layer by layer on a 12in wafer. In
+Indiana, HBM stacks will be assembled in parallel. HBM memory dies with 1,024
+IO's are fabricated using advanced EUV technology through silicon via is used
+in the back end to connect 12 stacks of HBM memory and base dye to produce HBM.
+Meanwhile, the wafer is scribed into individual Blackwell dye, tested and
+sorted, separating the good dyes to move forward. The chip on wafer on substrate
+process attaches 32 Blackwell dyes and 128 HBM stacks on a custom silicon
+interposer wafer. Metal interconnect traces are etched
+directly into it, connecting Blackwell GPUs and HBM stacks into each system and
+package unit, locking everything into place. Then the assembly is baked,
+molded, and cured, creating the GB300 Blackwell Ultra Super Chip.
+In Texas, robots will work around the clock to pick and place over 10,000
+components onto the Grace Blackwell PCB. In California, Connect X8 Super Nix for
+scaleout communications and Bluefield 3 DPUs for offloading and accelerating
+networking, storage, and security are carefully assembled into GB300 compute
+trays. MVLink is the breakthrough high-speed
+link that Nvidia invented to connect multiple GPUs and scale up into a
+massive virtual GPU. The MVLink switch tray is constructed with MVLink switch chips providing 14.4
+terabytes per second of all to all bandwidth. MVLink spines form a custom
+blindmated back plane with 5,000 copper cables connecting all 72 black wells or
+144 GPU dies into one giant GPU delivering 130 terabytes per second of
+all to all bandwidth. nearly the global internet's peak traffic.
+Skilled technicians assemble each of these parts into a rack scale AI
+supercomput. In total, 1.2 million components, 2 m of
+copper cable, 130 trillion transistors, weighing nearly 2 tons.
+From silicon in Arizona and Indiana to systems in Texas, Blackwell and future
+Nvidia AI factory generations will be built in America,
+writing a new chapter in American history and industry. America's return to making and
+reindustrialization, reignited by the age of AI.
+The age of AI has begun. Made in America.
+Made for the world.
+We are manufacturing in America again. It is incredible. The first thing that
+President Trump asked me for is bring manufacturing back. Bring manufacturing back because it's it's necessary for
+national security. bring manufacturing back because we want the jobs and we want that part of the economy. And nine
+months later, nine months later, we are now manufacturing in full production Blackwell in Arizona.
+Extreme Blackwell GB 200 MV Grace Blackwell Envy 72 extreme code design
+gives us 10x generationally. It's utterly incredible. Now, the part that's
+really incredible is this. This is the first AI supercomputer we made. This is in 2016 when I delivered it to a startup
+in San Francisco which turned out to have been OpenAI. This was the computer. And in order to do the create that
+computer, we designed one chip. We designed one new chip in order for us
+to do code design. Now, look at all of the chips we have to do. This is what it
+takes. You're not going to take one chip and make a computer 10 times faster. That's not going to happen. The way to
+make computers 10 times faster that we can keep increasing the performance exponentially, we can keep driving cost
+down exponentially is extreme code design and working on all these different chips at the same time. We now
+have Ruben back home. This is Ruben. This is the Vera Rubin and and uh Ruben.
+Ladies and gentlemen, Ruben
+This is this is our third generation MVLink 72 rack scale computer. Third
+generation GB200 was the first one. All of our partners around the world, I know how hard you guys worked. It was
+insanely hard. It was insanely hard to do. Second generation, so much smoother.
+And this generation, look at this. Completely cableless.
+completely cableless. And this is this is all back in the lab now. This is the
+next generation Reuben. While we're shipping GB300's, we're preparing Reuben to be in
+production. You know, this time next year, maybe slightly earlier. And so, every single year, we are going to come
+up with the most extreme code design system so that we can keep driving up performance and keep driving down the
+token generation cost. Look at this. This is just an incredibly beautiful computer. Now,
+so this is amazing. This is 100 pedlops.
+I know this doesn't mean anything. 100 pedlops. But compared to the DGX1 I delivered to
+OpenAI 10 years ago, 9 years ago, it's 100 times the performance right
+here versus 100 times of that supercomput. 100 times a 100 of those,
+let's see, a 100 of those would be like 25 of these racks all replaced by this
+one thing. One
+Vera Rubin Okay. So this is this is the compute tray
+and this is so Vera Rubin super chip.
+Okay. And this is the compute tray. This Oh right here.
+It's incredibly easy to install. Just flip these things open. Shove it in. Even I could do it. Okay. And this is
+the ver Vera Rubin compute tray. If you decide you wanted to add a special processor, we've added another
+processor. It's called a context processor because the amount of context that we give AIS are larger and larger.
+We wanted to read a whole bunch of PDFs before it answer a question. Wanted to read a whole bunch of archive papers,
+watch a whole bunch of videos. Go learn all this before you answer a question for me. All of that context processing
+could be added. And so you see on the bottom eight connectx9
+new super nicks you have CX you have uh CPXs eight of them you have uh blue
+field 4 this new data processor two Vera
+CPUs and four Reuben packages or eight Reuben GPUs all of that in this one node
+completely cableless. 100% liquid cooled. And then this new
+processor, I won't talk too much about it today. I don't have enough time, but this is completely revolutionary. And the reason for that is because your AIS
+need to have more and more memory. You're interacting with it more. You wanted to remember our last conversation, everything that you've
+learned on my behalf. Please don't forget it when I come back next time. And so all of that memory is going to
+create this thing called KV caching. and that KV caching retrieving it. You might have noticed every time you go into your
+your your AIS these days, it takes longer and longer to refresh and retrieve all of the previous
+conversations and and the reason for that is we need a revolutionary new processor and that's called Blue Fuel 4.
+Next is the the ConnectX switch uh excuse me the MVLink switch which is
+right here. Okay, this is the MVLink switch. This is what makes it possible for us to con
+connect all of the computers together. And this switch is now several times
+the bandwidth of the entire world's peak internet traffic. And so that spine is
+going to communicate and carry all of that data simultaneously to all of the GPUs. On top of that, on top of that,
+this is the this is the Spectrum X switch. And this Ethernet switch was
+designed so that all of the processors could talk to each other at the same
+time and not gum up the network. Gum up the network. That's very technical. Okay. So, um, so these are the these
+three combined. And then this is the quantum switch. This is for Infiniband.
+This is Ethernet. We don't care what language you would like to use, whatever standard you like to use. We have great
+scale out fabrics for you. Whether it's Infiniban or Quant or Spectrum Ethernet,
+this one uses silicon photonics and is completely co-acked options. Basically,
+the laser comes right up to the silicon and connects it to our chips. Okay, so
+this is the Spectrum X Ethernet. And so now, let's talk about Thank you. Oh, this is this is what it looks like. This
+is a rack. This is two and a half. This is two uh 2000. This is two tons.
+1.5 million parts. And the spine, this spine right here
+carries the entire internet traffic in one second. Same speed moves across all
+of these different processors. 100% liquid cooled. All for the, you know,
+fastest token generation rate in the world. Okay, so that's what a rack looks like. Now that's one rack. A gigawatt
+data center would have you know call it
+let's see 16 racks would be a th00and um and then 500 of those. So whatever
+500 time 16 and so call it 9,000 of these 8,000 of these would be a one
+gigawatt data center. Okay. And so that's a future AI factory. Now we used,
+as you notice, Nvidia started out by designing chips and then we started to design systems and we designed AI
+supercomputers. Now we're designing entire AI factories. Every single time
+we move out and we integrate more of the problem to solve, we come up with better
+solutions. We now build entire AI factories. This is going this AI factory is what
+we're building for Vera Rubin and we created a technology that makes it possible for all of our partners to
+integrate into this factory digitally. Let me show it to you.
+The next industrial revolution is here and with it a new kind of factory.
+AI infrastructure is an ecosystem scale challenge requiring hundreds of companies to
+collaborate. NVIDIA Omniverse DSX is a blueprint for
+building and operating gigascale AI factories. For the first time, the building, power,
+and cooling are co-designed with NVIDIA's AI infrastructure stack.
+It starts in the Omniverse digital twin. Jacob's engineering optimizes compute
+density and layout to maximize token generation according to power constraints.
+They aggregate SIM ready open USD assets from Seammen's Schneider Electric Train
+and Vertive into PTC's product life cycle management.
+Then simulate thermals and electricals with CUDA accelerated tools from EAB
+and Cadence. [Music]
+Once designed, NVIDIA partners like Bectal and Vertive deliver
+pre-fabricated modules factory-built, tested, and ready to plug in. This
+shrinks build time significantly, achieving faster time to revenues.
+When the physical AI factory comes online, the digital twin acts as an operating
+system. Engineers prompt AI agents from FIDRA
+and Emerald AI, previously trained in the digital twin to optimize power
+consumption and reduce strain on both the AI factory and the grid.
+In total, for a 1 gawatt AI factory, DSX optimizations can deliver billions of
+dollars in additional revenue per year across Texas,
+Georgia, and Nevada. NVIDIA's partners are bringing DSX to
+life. In Virginia, NVIDIA is building an AI factory research center using DSX to
+test and productize Vera Rubin from infrastructure to software.
+With DSX, NVIDIA partners around the world can build and bring up AI
+infrastructure faster than ever. [Music]
+completely completely in digital long long before Vera Rubin exists as a real
+computer we've been using it as a digital twin computer now long before
+these AI factories exist we will use it we will design it we'll plan it we'll
+optimize it and we'll operate it as a digital twin and so all of our partners that are working with us I'm incredibly
+happy for all of you supporting us And Gio is here and G ver Vernova is here.
+Schlider I I think um I think uh uh Olivia is here. Olivia Blum is here. Um
+uh uh Seaman's incredible partners. Okay. Roland Bush, I think he's
+watching. Hi Roland. And so anyways, uh really really great partners working with us.
+In the beginning we had CUDA and we have all these different ecosystems of software partners. Now we have Omniverse
+DSX and we're building AI factories and again we have these incredible ecosystem of partners working with us. Let's talk
+about models. Open source models particularly in the
+last couple years several things have happened. One, open source models have become quite capable because of
+reasoning capabilities. It has become quite capable because they're multimodality and they're incredibly
+efficient because of distillation. So all of these different capabilities have become uh has made open source models
+for the very first time incredibly useful for developers. They are now the
+lifeblood of startups. Lifeblood of startups in different industries because obviously as I
+mentioned before each one of the industries have its own use case it own use cases it own data it owned data it
+own flywheels. All of that capability, that domain expertise needs to have the ability to embed into a model. Open
+source makes that possible. Researchers need open-source. Developers need open-source. Companies around the world,
+we need open source. Open- source models is really, really important.
+The United States has to lead in open source as well. We have amazing proprietary models. We have amazing
+proprietary models. We need also amazing open source models. Our country depends on it. Our startups depend on it. And so
+Nvidia is dedicating ourselves to go do that. We are now the largest the largest
+we lead in open-source contribution. We have 23 models in leaderboards. We have
+all these different domains from language models the physical AI models. I'm going to talk about robotics models
+to biolog biology models. Each one of these models has enor enormous teams and
+that's one of the reasons why we built supercomputers for ourselves to enable all these models to be created. We have
+number one speech model, number one reasoning model, number one physical AI model. The number of downloads is really
+really terrific. We are dedicated to this and the reason for that is because
+science needs it, researchers need it, startups need it and companies need it.
+I'm delighted that AI startups build on Nvidia. They do so for several reasons. One, of course, our ecosystem is rich.
+Our tools work great. All of our tools work on all of our GPUs. Our GPUs are
+everywhere. It's literally in every single cloud. It's available on prem. You could build it yourself. You could
+you could, you know, build up a an enthusiast gaming PC with multiple GPUs in it and you could download our
+software stack and it it just works. We have the benefit of rich developers who
+are making this ecosystem richer and richer and richer. So, I'm really pleased with all of the startups that
+we're working with. I'm I'm thankful for that. It is also the case that many of these startups are now starting to
+create even more ways to enjoy our GPUs. the Cordwaves, Nscale, Nimbius, Llama,
+Lambda, all of these companies, Crusoe companies are building these new GPU
+clouds to serve the startups and I really appreciate that this is all possible because Nvidia is everywhere.
+We integrate our libraries. All of the CUDA X libraries I tal talked to you about. All the open-source AI models
+that I talked about. All of the models that I talked about, we integrated into AWS, for example, really love working
+with Matt. We integrated into Google Cloud, for example, really love working with Thomas. Each one of these clouds
+integrate NVIDIA GPUs and our computing, our libraries as well as our models.
+Love working with Satia over at Microsoft Azure. love working with uh Clay at Oracle. Each one of these clouds
+integrate the NVIDIA stack. As a result, wherever you go, whichever cloud you
+use, it works incredibly. We also integrate Nvidia libraries into the
+world SAS so that each one of these SAS will eventually become agentic SAS. I
+love Bill McDormer's vision for Service Now. There. Yeah, there you go.
+I think that might have been Bill. Hi, Bill. And so, Service Now, what is
+it? 85% of the world's enterprise workloads, workflows. SAP, 80% of the
+world's commerce. Christian Klein and I are working together to integrate NVIDIA libraries, CUDA X and Nemo and Neotron,
+all of our AI systems into SAP. working with Cassine over at Synopsis accelerating the world CAE, CAD, EDA
+tools so that they could be faster and could scale helping them create AI
+agents. One of these days I would love to hire a AI agent as designers to work
+with our ASIC designers essentially the cursor of Synopsis if you will. We're working with uh Annie Rude. Annie Rude
+here. I saw him earlier today. He was part of the pregame show. Cadence doing incredible work accelerating their
+stack, creating AI agents so that we can have cadence AI as designers and system
+designers working with us. Today we're announcing a new one. AI
+will supercharge productivity. AI will transform just about every industry. But AI will also supercharge
+cyber security challenges, the bad AIs. And so we need an incredible defender. I
+can't imagine a better defender than Crowd Strike. George George is here. Uh
+he was here. Yep, I saw him earlier. We are partnering with Crowdstrike to
+make cyber security speed of light to create a system that has cyber security
+AI agents in the cloud but also incredibly good AI agents on prem or at
+the edge. This way you whenever there's a threat you are moments away from detecting it. We need speed and we need
+a fast agentic AI super a super smart AIs.
+I have a second announcement. This is the single fastest enterprise enterprise
+company in the world. Probably the single most important enterprise stack in the world today.
+Palunteer ontology. Anybody from Palunteer here? I just I was just talking to Alex earlier.
+This is Palenter ontology. They take information,
+they take data, they take human judgment and they turn it into business insight. We work with Palanteer to accelerate
+everything Palanteer does so that we could do data processing data processing at a much much larger scale and more
+speed whether it's structured data of the past and of course we'll have
+structured data human recorded data unstructured data and process that data
+for our government for national security and for enterprises around the world
+process that data at speed of light and to find insight from it. This is what it's going to look like in the future.
+Palunteer is going to integrate Nvidia so that we could process at the speed of light and at extraordinary scale.
+Okay, Nvidia and Palunteer.
+Let's talk about physical AI. Physical AI requires three computers. Just as it
+takes two computers to train a language model, one that's to train it, evaluate
+it, and then inference it. Okay, so that's the large GB 200 that you see. In
+order to do it for physical AI, you need three computers. You need the computer
+to train it. This is GB, the Grace Blackwell, MVLink72. We need a computer
+that does all of the simulations that I showed you earlier with Omniverse DSX.
+It basically is a digital twin for the robot to learn how to be a good robot
+and for the factory to essentially be a digital twin. That computer is the second computer, the omniverse computer.
+This computer has to be incredibly good at generative AI and it has to be good at computer graphics, sensor simulation,
+ray tracing, signal processing, this computer is called the omniverse computer. And once we train the model,
+simulate that AI inside a digital twin and that digital twin could be a digital
+twin of a factory as long as well as a whole bunch of digital twins of robots. Then you need to operate that robot. And
+this is the robotic computer. This is this one goes into a self-driving car. Half of it could go into a robot. Okay?
+Or you could actually have, you know, robots that are quite agile and quite quite fast in operations. And it might
+take two of these computers. And so this is the Thor Jetson Thor robotics
+computer. These three computers all run CUDA. And it makes it possible for us to
+advance physical AI. AI that understand the physical world, understand laws of
+physic, causality, permanence, you know,
+physical AI. We have incredible partners working with us to create the physical
+AI of factories. We're using it ourselves to create our factory in Texas. Now, once we create the robotic
+factory, we have a bunch of robots that are inside it. And these robots also
+need the physical AI, applies physical AI and works inside the digital twin.
+Let's take a look at it. America is re-industrializing,
+reshoring manufacturing across every industry. In Houston, Texas, Foxcon is
+building a state-of-the-art robotic facility for manufacturing NVIDIA AI infrastructure systems.
+With labor shortages and skills gaps, digitalization, robotics, and physical
+AI are more important than ever. The factory is born digital
+in Omniverse. Foxcon engineers assemble their virtual
+factory in a seaman's digital twin solution developed on Omniverse Technologies. Every system, mechanical,
+electrical, plumbing, is validated before construction.
+Seaman's plant simulation runs design space exploration optimizations
+to identify ideal layout. When a bottleneck appears, engineers
+update the layout with changes managed by Seaman's team center.
+In Isaac sim, the same digital twin is used to train and simulate robot AIS.
+In the assembly area, fanic manipulators build GB300 tray modules
+by manual manipulators from FII and Skilled AI install bus bars into the
+trays and AMRs shuttle the trays to the test pods.
+Then Foxcon uses Omniverse for large-scale sensor simulation where
+robot AIs learn to work as a fleet. In Omniverse, vision AI agents built on
+NVIDIA Metropolis and Cosmos. Watch the fleets of robots and workers
+from above to monitor operations and alert Foxcon engineers of anomalies
+and safety violations. or even quality issues.
+And to train new employees, agents power interactive AI coaches for easy worker
+onboarding. The age of US re-industrialization is
+here with people and robots working together.
+That's the the future of manufacturing, the future of factories. I want to thank
+our partner Foxcon Younglu, the CEO, is here, but all of these ecosystem partners make it possible for us to
+create the future of robotic factories. The factory is essentially a robot
+that's orchestrating robots to build things that are robotic. You
+know this is the amount of software necessary to do this is so intense that
+unless you could do it inside a digital twin to dis to plan it to design it to operate inside a digital twin the hopes
+of getting this to work is nearly impossible. I'm so happy to see also that Caterpillar, my friend Joe Joe
+Creed and his hundredyear-old company is also incorporating digital twins and the
+way they manufacture. Um these factories will have future robotic systems and one
+of the most advanced is figure. Brett Atcock is here today. He just he founded
+a company three and a half years ago. They're worth almost $40 billion. Today we're working together in training the
+the AI, training the robot, simulating the robot and of course the robotic computer that goes into figure really
+amazing. Uh I had the benefit of seeing it. Uh it's really quite quite extraordinary. It is very likely that
+humano robots and uh my friend Elon is also working on this that this is likely
+going to be one of the largest consumer new consumer electronics markets and
+surely one of the largest industrial equipment market. Peggy Johnson and the
+folks at Agility are working with us on robots for warehouse automation. The
+folks at Johnson Johnson working with us again training the robot, simulating it
+in digital twins and also operating the robot. These John Johnson and Johnson
+surgical robots are even going to perform surgery that are completely noninv noninvasive surgery at a
+precision the world's never seen before. And of course, the cutest robot ever,
+the cutest robot ever, the Disney robot. And this is this is um something really
+close to our heart. We're working with Disney research on a entirely new
+framework and sim simulation platform uh based on revolutionary technology called
+Newton. And that Newton uh simulator makes it possible for the the robot to
+learn how to be a good robot inside a physically aware physically based environment. Let's take a look at it.
+Excuse [Music]
+me.
+[Music]
+[Music]
+Fluffy. [Music]
+Blue, ladies and gentlemen. Disney Blue. Tell me that's not adorable. He's not
+adorable. We all want one. We all want one. Now
+remember everything you were just seeing that is not animation. It's not a movie. It's a simulation. That simulation is an
+omniverse. Omniverse. The digital twin. So these digital twins of factories,
+digital twins of warehouses, digital twins of surgical rooms, digital twins
+where blue could learn how to manipulate and navigate and you know interact with
+the world. All completely done in real time. This is going to be the largest
+consumer electronics product line in the world. Some of them are just really working incredibly well now. This is a
+future of human or robotics and of course blue. Okay.
+Now, human robots is still in development. But meanwhile, there's one robot that is clearly at an
+inflection point and it is basically here and that is a robot on wheels. This
+is a robo taxi. A robo taxi is essentially an AI chauffeur. Now, one of
+the things that we're doing today, we're announcing the NVIDIA drive Hyperion. This is a big deal.
+We created this architecture so that every car company in the world could
+create cars, vehicles could be commercial, could be passenger, could be dedicated to robo taxi. Create vehicles
+that are robo taxi ready. The sensor suite with surround cameras and radars
+and LAR make it possible for us to achieve the highest level of surround cocoon sensor
+perception and redundancy necessary for the highest level of safety.
+Hyperion drive drive Hyperion is now designed into Lucid Mercedes-Benz my
+friend Ola Ken Canel Kenas the folks at Stalantis and there are many other cars
+coming and once you have a basic standard platform then developers of AV
+systems and there's so many talented ones wave wabby Aurora Momenta Neuro
+there's so many of them we ride there's so many of them that can then take their AV AV system and run it on the standard
+chassis. Basically, the standard chassis has now become a computing platform on
+wheels. And because it's standard and the sensor suite is comprehensive, all of them could deploy their AI to it.
+Let's take a quick look. [Music]
+Okay, that's the be that's beautiful San Francisco. And as you could see, as you could see, robo taxis inflection point
+is about to get here. And in the future, a trillion miles a year that are driven,
+a 100 million cars made each year. There's some 50 million taxis around the world. It's going to be augmented by a
+whole bunch of robo taxis. So, it's going to be a very large market to connect it and deploy it around the world. Today, we're announcing a
+partnership with Uber. Uber, Derek, Dara K, Dara is going to we're working
+together to connect these Nvidia drive Hyperion cars into a global network and
+now in the future you'll, you know, be able to hail up one of these cars and the ecosystem is going to be incredibly
+rich and we'll have Hyperion or Robo taxi cars all over the world. This is going to be a new computing platform for
+us and I'm expecting it to be quite successful. Okay.
+So this is what we talked about today. We talked about a large large number of things we spoke about. Remember at the
+core of this is two or two platform transitions from general purpose
+computing to accelerated computing. NVIDIA CUDA and those suite of libraries called CUDA X has enabled us to address
+practically every industry and we're at the inflection point. It is now growing
+as a virtual cycle would suggest. The second inflection point is now upon us.
+The second platform transition AI from classical handwritten software to
+artificial intelligence. two platform transitioning happening at the same time which is the reason why we're feeling
+such incredible growth. quantum quantum computing. We spoke about open models.
+We spoke about we spoke about enterprise with crowd strike and uh palunteer
+accelerating their platforms. Uh we spoke about robotics a new potentially
+one of the largest consumer electronics and industrial manufacturing sectors. And of course we spoke about 6G. Nvidia
+has new platforms for 6G. We call it ARC. We have a new platform for robotics
+cars. We call that Hyperion. We have new platforms
+even for factories. Two types of factories. The AI factory we call that
+DSX. And then factories with AI we call that mega. And so now we're also
+manufacturing in America. Ladies and gentlemen, thank you for joining us today and thank you for allowing me to
+bring
+Thank Thank you for for allowing us to bring GTC to Washington DC. We're going to do it hopefully every year. And thank
+you all for your service and making America great again. Thank you.
+[Music]
+We start with a handshake. Solid and true. One step at a time, we're breaking
+through. Brick by brick, we're stacking dreams high. Side by side, we'll touch
+the sky. Handshakes and high hopes we're making our way. Shoulder to shoulder
+come what may shed vision brighter than the sun.
+Friendship and business rolling as one.
+Plans on paper but hearts in sink. Building together faster than you think.
+Laughter's the glue in the grind we share. We've got the spark. We're going
+somewhere. Handshakes and high hopes. We're making our way shoulder to come
+with me. Share vision brighter than the sun. Friendship and business.

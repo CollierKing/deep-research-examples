@@ -215,3 +215,6 @@ checkpoints.db-shm
 checkpoints.db-wal
 
 data/
+.claude
+!transcript.txt
+*.jsonl

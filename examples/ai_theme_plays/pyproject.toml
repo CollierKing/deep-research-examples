@@ -14,6 +14,7 @@ dependencies = [
     "langchain-openai>=0.3.32",
     "langgraph>=0.6.7",
     "langgraph-checkpoint-sqlite>=2.0.6",
+    "langsmith>=0.4.38",
     "pandas>=2.3.2",
     "psycopg2-binary>=2.9.10",
     "pydantic>=2.11.7",
