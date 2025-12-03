@@ -1,0 +1,5 @@
+model,sessionId,durationSec,totalTokens,promptTokens,completionTokens,inferenceTimeSec,companiesTotal,successful,failed,successRate,cacheHits,cacheMisses,cacheHitRate
+"ollama/gpt-oss:20b","2025-12-03_12-50-48_ollama-gpt-oss-20b_03c4c6a3",6365.9,911199,877606,33593,5715.5,30,29,1,"96.7%",0,0,"N/A"
+"anthropic/claude-3-haiku-20240307","2025-12-03_12-18-32_anthropic-claude-3-haiku-20240307_87a239d1",789.6,521065,495945,25120,248.5,30,29,1,"96.7%",0,0,"N/A"
+"openai/gpt-4o-mini","2025-12-03_11-54-40_openai-gpt-4o-mini_b14c2e3d",1196.4,518957,504083,14874,474.2,30,30,0,"100.0%",0,0,"N/A"
+"google/gemini-2.5-flash","2025-12-03_12-32-58_google-gemini-2.5-flash_23287fc2",993.8,525410,508441,16969,465.5,30,30,0,"100.0%",0,0,"N/A"

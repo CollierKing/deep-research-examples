@@ -1,89 +1,116 @@
-# Stagehand News Discovery with S3 Persistence
+# Company News/PR Discovery with Stagehand
 
-This example demonstrates how to use Stagehand with Ollama for automated news/press release page discovery, with full S3 persistence for session data, logs, metrics, and cache.
+Automated discovery of company news and press release pages using browser automation and multi-provider LLM verification.
 
-## Overview
+## The Problem
 
-This project implements a **4-stage discovery flow** to find company news and press release pages:
+Given a company like "Apple" or "Walmart", find the URL of their official press release listing page (e.g., `apple.com/newsroom`).
 
-1. **Stage 1: DuckDuckGo Search (PRIMARY)** - Search for `site:{domain}` with news/press keywords
-2. **Stage 2: Heuristic URL Filtering (NO LLM)** - Classify URLs as listing pages vs articles, extract root URLs
-3. **Stage 3: Candidate Verification Loop** - LLM verification with detailed examples and HTTP validation
-4. **Stage 4: Homepage Exploration (LAST RESORT)** - Navigate homepage, expand menus, verify links
+This is harder than it sounds:
 
-Key features:
-- **Stagehand v3**: Browser automation with AI-powered tools (navigate, act, observe, extract)
-- **Ollama**: Local LLM for verification (no API costs)
-- **S3 Persistence**: Automatic capture and storage of all session data
-- **Bidirectional Cache Sync**: Global cache shared across runs + per-session snapshots
+| Challenge | Example |
+|-----------|---------|
+| **No standard location** | `/news`, `/newsroom`, `/press`, `/media`, `/about/press-releases` |
+| **Hidden navigation** | Links buried in dropdown menus or footers |
+| **Articles vs. listings** | Search returns individual articles, not the main listing page |
+| **Dynamic content** | JavaScript-heavy sites need real browser automation |
+| **False positives** | Blogs, whitepapers, SEC filings look similar but aren't press releases |
 
-## Architecture
+This project solves these challenges with a 3-step discovery flow combining search engines, heuristic filtering, and LLM verification.
 
-```
-Discovery Flow:
-                                   ┌─────────────────────────────────────────┐
-                                   │         Stage 1: DuckDuckGo Search       │
-                                   │    site:{domain} (news OR press OR ...)  │
-                                   └─────────────────┬───────────────────────┘
-                                                     │
-                                                     ▼
-                                   ┌─────────────────────────────────────────┐
-                                   │    Stage 2: Heuristic URL Filtering      │
-                                   │          (NO LLM - Fast & Free)          │
-                                   │  • Filter by keywords in URL/title       │
-                                   │  • Classify: listing page vs article     │
-                                   │  • Extract root URLs from article paths  │
-                                   └─────────────────┬───────────────────────┘
-                                                     │
-                                                     ▼
-                                   ┌─────────────────────────────────────────┐
-                                   │   Stage 3: Candidate Verification Loop   │
-                                   │  • Navigate to each candidate            │
-                                   │  • LLM verification (12 detailed examples)│
-                                   │  • 5 critical checks must ALL pass       │
-                                   │  • HTTP status validation (2xx only)     │
-                                   │  • Return immediately on first valid     │
-                                   └─────────────────┬───────────────────────┘
-                                                     │
-                                           Success?──┤
-                                             YES     │ NO
-                                              ▼      ▼
-                                           DONE    ┌─────────────────────────────────────────┐
-                                                   │  Stage 4: Homepage Exploration (Fallback)│
-                                                   │  • Navigate to company homepage          │
-                                                   │  • Extract links from nav/header/footer  │
-                                                   │  • Expand dropdown menus with act()      │
-                                                   │  • Verify each link found                │
-                                                   └───────────────────────────────────────────┘
+**Test companies**: See [`companies.ts`](./companies.ts) for the 30 companies used for testing (Apple, Amazon, Disney, Nike, etc.)
+
+## How It Works
+
+```mermaid
+flowchart LR
+    A[Company<br/>Domain] --> B[Step 1<br/>Search]
+    B --> C[Step 2<br/>Homepage]
+    C --> D[Step 3<br/>Site Search]
+
+    B --> E[LLM<br/>Verify]
+    C --> E
+    D --> E
+
+    E --> F[News<br/>URL]
 ```
 
-## S3 Persistence Architecture
+| Step | Method | Description |
+|------|--------|-------------|
+| 1 | **Search** | Query DuckDuckGo for `site:{domain} news OR press` and verify top results |
+| 2 | **Homepage** | Extract links from nav/header/footer, expand dropdowns, verify candidates |
+| 3 | **Site Search** | Use the site's own search bar to find news/press pages |
 
+Each step runs LLM verification to confirm the page shows a **list of press releases** (not a single article). See [`src/prompts.ts`](./src/prompts.ts) for the verification prompts.
+
+**Core logic**: [`src/news-discovery.ts`](./src/news-discovery.ts)
+
+## Multi-Provider LLM Support
+
+Compare discovery accuracy across different LLM providers:
+
+```mermaid
+flowchart LR
+    subgraph Providers
+        A[Ollama<br/>Local/Free]
+        B[OpenAI<br/>GPT-4o]
+        C[Anthropic<br/>Claude]
+        D[Google<br/>Gemini]
+    end
+
+    A --> E[Stagehand]
+    B --> E
+    C --> E
+    D --> E
+    E --> F[Discovery Flow]
+    F --> G[S3 Results]
 ```
-S3 Bucket Structure:
-stagehand-runs/
-├── {session-id}/                    # Per-session folder
-│   ├── metadata.json                # Session metadata
-│   ├── history.json                 # Stagehand action history
-│   ├── metrics.json                 # Token usage metrics
-│   ├── logs.json                    # Buffered log entries
-│   ├── stdout.txt                   # Full terminal output
-│   └── cache-snapshot/              # Session cache snapshot (audit trail)
-│       └── {domain}_{hash}.json
-│
-stagehand-cache/                     # Global cache (shared across runs)
-├── {domain}/
-│   └── {instruction-hash}.json      # Cached act() responses
+
+| Provider | Model | Use Case |
+|----------|-------|----------|
+| Ollama | `gpt-oss:20b` | Local inference, no API costs |
+| OpenAI | `gpt-4o`, `gpt-4o-mini` | High accuracy, fast |
+| Anthropic | `claude-sonnet-4-20250514` | Strong reasoning |
+| Google | `gemini-2.5-flash` | Fast, cost-effective |
+
+**Provider setup**: [`src/llm-providers.ts`](./src/llm-providers.ts)
+
+## S3 Persistence
+
+All session data is automatically captured to S3 for analysis and debugging. Data is flushed after each company, so you don't lose progress if interrupted.
+
+```mermaid
+flowchart TD
+    subgraph Session
+        A[Start Session] --> B[Process Company]
+        B --> C[Flush to S3]
+        C --> B
+        B --> D[End Session]
+    end
+
+    subgraph S3 Storage
+        E[stagehand-runs/session-id/]
+        E --> F[discovery-results.json]
+        E --> G[history.json]
+        E --> H[metrics.json]
+        E --> I[logs/]
+        E --> J[cache-snapshot/]
+    end
+
+    C --> E
 ```
 
-## Prerequisites
+| File | Contents |
+|------|----------|
+| `discovery-results.json` | Per-company results with URLs and methods |
+| `history.json` | Stagehand action history (act, extract, observe) |
+| `metrics.json` | Token usage per primitive (prompt vs completion) |
+| `logs/` | Batched log entries |
+| `cache-snapshot/` | Cached LLM responses for reproducibility |
 
-1. **Node.js** (v18+)
-2. **AWS Account** with S3 access
-3. **Ollama** running locally or remotely with a compatible model
-4. **AWS Credentials** configured (via `~/.aws/credentials` or environment variables)
+**Persistence layer**: [`utils/stagehand-s3-persistence.ts`](./utils/stagehand-s3-persistence.ts)
 
-## Setup
+## Quick Start
 
 ### 1. Install Dependencies
 
@@ -91,262 +118,223 @@ stagehand-cache/                     # Global cache (shared across runs)
 npm install --legacy-peer-deps
 ```
 
-### 2. Configure Environment Variables
-
-Copy `.env.example` to `.env` and configure:
+### 2. Configure Environment
 
 ```bash
 cp .env.example .env
 ```
 
-Required environment variables:
+Required variables (see [`.env.example`](./.env.example)):
 
 ```bash
-# AWS Configuration
+# AWS (required for S3 persistence)
 AWS_REGION=us-east-1
-S3_PERSISTENCE_BUCKET=your-s3-bucket-name
-S3_PERSISTENCE_PREFIX=stagehand-runs
-S3_PERSISTENCE_ENABLED=true
+AWS_ACCESS_KEY_ID=your_key
+AWS_SECRET_ACCESS_KEY=your_secret
+S3_PERSISTENCE_BUCKET=your-bucket
 
-# Stagehand Configuration
-STAGEHAND_ENV=LOCAL
-STAGEHAND_VERBOSE=1
-STAGEHAND_HEADLESS=true
-STAGEHAND_CACHE_DIR=.stagehand-cache
+# LLM Provider API Keys (at least one required)
+OPENAI_API_KEY=sk-...
+ANTHROPIC_API_KEY=sk-ant-...
+GOOGLE_GENERATIVE_AI_API_KEY=...
+
+# Ollama (if using local inference)
+OLLAMA_BASE_URL=http://localhost:11434
 ```
 
-### 3. Set Up Ollama
-
-Make sure Ollama is running with a compatible model. Update the configuration in the test files:
-
-```typescript
-const MODEL = 'gpt-oss:20b';  // Change to your model
-const OLLAMA_BASE_URL = 'http://100.122.179.22:11434';  // Change to your Ollama server
-```
-
-### 4. Create S3 Bucket
+### 3. Run Discovery
 
 ```bash
-aws s3 mb s3://your-s3-bucket-name --region us-east-1
+# With browser visible (recommended for debugging)
+STAGEHAND_HEADLESS=false npm run test:discovery:openai:mini
+
+# Headless mode
+npm run test:discovery:openai
+
+# Other providers
+npm run test:discovery:claude
+npm run test:discovery:gemini
+npm run test:discovery        # Default: Ollama
 ```
 
-## Running the Tests
+**Test harness**: [`tests/test-news-discovery.ts`](./tests/test-news-discovery.ts)
 
-### News Discovery Test (4-Stage Flow)
+### 4. Compare Results
 
 ```bash
-# Run locally (no S3)
-npm run test:discovery
-
-# Run with S3 persistence
-npm run test:discovery:s3
+npm run analyze
 ```
 
-### Native Stagehand Test
-
-```bash
-# Run locally
-npm run test:native
-
-# Run with S3
-npm run test:native:s3
-```
-
-### S3 Persistence Test
-
-```bash
-npm run test:s3:enabled
-```
+**Analysis script**: [`analysis/compare-models.ts`](./analysis/compare-models.ts)
 
 ## Project Structure
 
 ```
 .
-├── config.ts                          # Central configuration
+├── config.ts                        # Central configuration
+├── companies.ts                     # Test company list (30 companies)
+├── src/
+│   ├── news-discovery.ts            # 3-step discovery flow
+│   ├── llm-providers.ts             # Multi-provider LLM factory
+│   ├── prompts.ts                   # LLM verification prompts
+│   ├── types.ts                     # TypeScript types
+│   └── utils.ts                     # URL filtering, logging helpers
 ├── tests/
-│   ├── news-discovery.ts              # 4-stage discovery module
-│   ├── test-news-discovery.ts         # Discovery test with S3
-│   ├── test-stagehand-native.ts       # Native Stagehand test
-│   └── schemas.ts                     # Zod schemas
+│   └── test-news-discovery.ts       # Main test harness
+├── analysis/
+│   └── compare-models.ts            # Model comparison script
 ├── utils/
-│   └── stagehand-s3-persistence.ts    # S3 persistence with cache sync
-├── package.json
-├── tsconfig.json
-└── .env.example
+│   └── stagehand-s3-persistence.ts  # S3 persistence layer
+└── .env.example                     # Environment template
 ```
 
-## Discovery Flow Details
+## Configuration
 
-### Stage 1: DuckDuckGo Search
+All settings in [`config.ts`](./config.ts) can be overridden via environment variables:
 
-The primary discovery method uses a targeted search:
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `LLM_PROVIDER` | `ollama` | Provider: ollama, openai, anthropic, google |
+| `LLM_MODEL` | `gpt-oss:20b` | Model name (provider-specific) |
+| `STAGEHAND_HEADLESS` | `true` | Run browser headlessly |
+| `STAGEHAND_VERBOSE` | `0` | Verbosity: 0=silent, 1=normal, 2=debug |
+| `DISCOVERY_MAX_SEARCH_RESULTS` | `10` | Max search results to extract |
+| `DISCOVERY_MAX_CANDIDATES` | `5` | Max candidates to verify per step |
+| `DISCOVERY_TIMEOUT_MS` | `30000` | Page navigation timeout |
 
-```
-site:{domain} (news OR "press release" OR press OR media OR updates)
-```
+## Adding Companies
 
-This finds pages on the company's domain that are likely to be news/press sections.
-
-### Stage 2: Heuristic URL Filtering (NO LLM)
-
-URLs are filtered and classified without using the LLM:
-
-**Listing Page Indicators:**
-- Path ends with: `/news`, `/press`, `/media`, `/newsroom`, `/press-releases`
-- Short path segments, no year patterns
-
-**Article Indicators:**
-- Year in path: `/2024/`, `/2025/`
-- Long slugs with 4+ hyphens
-- Path contains: `/pressrelease/`, `/article/`, `/whitepapers/`
-- Title contains: "announces", "reports", "Q1", "fiscal"
-
-**Root URL Extraction:**
-From articles like `/news/2024/company-announces-deal`, extract `/news` as a candidate.
-
-### Stage 3: Candidate Verification
-
-Each candidate is verified with a detailed LLM prompt containing **12 examples** of accept/reject decisions:
-
-**5 Critical Checks (ALL must pass):**
-1. Shows a LIST of MULTIPLE press releases (not single article)
-2. Is the MAIN/FIRST page (not page 2, 3, etc.)
-3. Contains formal PRESS RELEASES (not blogs, whitepapers, SEC filings)
-4. URL path is simple (no article slugs)
-5. Shows LIST VIEW (multiple headlines, not full article body)
-
-HTTP status is validated (must be 2xx).
-
-### Stage 4: Homepage Exploration
-
-If search fails, the homepage is explored:
-
-1. Navigate to company homepage
-2. Extract links from navigation, header, footer
-3. Try expanding dropdown menus (Company, About, Investors, etc.)
-4. Verify each discovered link
-
-## S3 Data Captured
-
-### Session Report
+Edit [`companies.ts`](./companies.ts):
 
 ```typescript
-{
-  session: {
-    sessionId: string;
-    startTime: string;
-    endTime: string;
-    status: 'completed' | 'failed';
-  };
-  history: HistoryEntry[];        // Stagehand action history
-  metrics: {
-    totalPromptTokens: number;
-    totalCompletionTokens: number;
-    totalInferenceTimeMs: number;
-  };
-  logCount: number;
-  cacheFileCount: number;
-  cacheStats: {
-    hits: number;
-    misses: number;
-    hitRate: string;
-  };
-  s3Paths: {
-    base: string;
-    metadata: string;
-    history: string;
-    metrics: string;
-    logs: string;
-    cacheSnapshot: string;
-    globalCache: string;
-    stdout: string;
-  };
-}
-```
-
-### Bidirectional Cache Sync
-
-**On Session Start:**
-1. Download all files from `s3://bucket/stagehand-cache/` to local `cacheDir`
-2. Stagehand uses these cached responses for subsequent `act()` calls
-
-**On Session End:**
-1. Upload new cache files to global cache (organized by domain)
-2. Create session snapshot for audit trail
-
-## Customization
-
-### Change Test Companies
-
-Edit `TEST_COMPANIES` in `tests/test-news-discovery.ts`:
-
-```typescript
-const TEST_COMPANIES: CompanyInput[] = [
-  { name: 'Your Company', website: 'yourcompany.com' },
+export const TEST_COMPANIES: CompanyInput[] = [
+  { name: 'Apple Inc', website: 'https://www.apple.com' },
+  { name: 'Microsoft Corporation', website: 'https://www.microsoft.com' },
+  // Add more...
 ];
 ```
 
-### Adjust Discovery Configuration
+## LLM Verification
 
-```typescript
-const DISCOVERY_CONFIG: DiscoveryConfig = {
-  maxSearchResults: 10,           // Max search results to extract
-  maxCandidatesToCheck: 5,        // Max candidates to verify
-  timeoutMs: 30000,               // Navigation timeout
-  delayBetweenActionsMs: 2000,    // Delay between actions
-};
-```
+Each candidate URL is verified with a detailed prompt (see [`src/prompts.ts`](./src/prompts.ts)). The LLM checks:
 
-### Adjust S3 Persistence
-
-```typescript
-const { persistence, logger } = createS3PersistenceWithLogger({
-  bucket: 'my-bucket',
-  prefix: 'my-prefix',
-  enabled: true,
-  logBatchSize: 50,               // Logs before batch upload
-  captureHistory: true,
-  captureMetrics: true,
-  captureLogs: true,
-  syncCacheDir: true,             // Enable bidirectional cache sync
-  captureStdout: true,            // Capture terminal output
-});
-```
+1. **Shows a LIST of MULTIPLE press releases** (not a single article)
+2. **Is the MAIN page** (not page 2, 3, etc.)
+3. **Contains formal PRESS RELEASES** (not blogs, whitepapers, SEC filings)
+4. **URL path is simple** (no article slugs or dates)
+5. **Shows LIST VIEW** (multiple headlines, not full article body)
 
 ## Troubleshooting
 
-### "The specified bucket does not exist"
-Create the S3 bucket or update `S3_PERSISTENCE_BUCKET`.
-
-### AWS credential errors
-Configure credentials via `~/.aws/credentials` or environment variables.
-
-### Ollama connection errors
-- Verify Ollama is running: `curl http://localhost:11434/api/tags`
-- Update `OLLAMA_BASE_URL` in the test file
-
-### No search results found
-- Check if the domain is valid
-- Some sites may block DuckDuckGo indexing
-- Falls back to homepage exploration automatically
-
-### Peer dependency warnings
-Use `--legacy-peer-deps` flag with npm install.
+| Issue | Solution |
+|-------|----------|
+| Bot detection on DuckDuckGo | Run with `STAGEHAND_HEADLESS=false` |
+| AWS credential errors | Set `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` in `.env` |
+| Ollama connection failed | Verify Ollama is running: `curl http://localhost:11434/api/tags` |
+| No search results | Some sites block search indexing; falls back to homepage exploration |
+| Peer dependency warnings | Use `npm install --legacy-peer-deps` |
 
 ## Dependencies
 
-### Core
-- `@browserbasehq/stagehand` (^3.0.1) - Browser automation
-- `ollama-ai-provider-v2` (^1.5.5) - Ollama provider
-- `zod` (^3.25.67) - Schema validation
+- [**Stagehand**](https://stagehand.dev) (`@browserbasehq/stagehand`) - Browser automation with AI
+- **AI SDK** (`@ai-sdk/openai`, `@ai-sdk/anthropic`, `@ai-sdk/google`) - LLM providers
+- **Ollama Provider** (`ollama-ai-provider-v2`) - Local LLM inference
+- **AWS SDK** (`@aws-sdk/client-s3`) - S3 persistence
 
-### AWS
-- `@aws-sdk/client-s3` (^3.940.0) - S3 client
-- `@aws-sdk/lib-storage` (^3.940.0) - Upload utilities
+## Stagehand Reference
 
-### Other
-- `dotenv` (^16.6.1) - Environment variables
-- `date-fns` (^4.1.0) - Date utilities
+This project uses [Stagehand](https://stagehand.dev) for AI-powered browser automation. Here's a quick reference.
+
+### Core Primitives
+
+```mermaid
+flowchart LR
+    A[observe] --> B[act]
+    A --> C[extract]
+    B --> D[Page<br/>Changes]
+    C --> E[Structured<br/>Data]
+
+    F[agent] --> G[Autonomous<br/>Workflow]
+```
+
+| Primitive | Purpose | Returns |
+|-----------|---------|---------|
+| `observe()` | Find actionable elements on page | `Action[]` with selectors |
+| `act()` | Perform a single action (click, type) | `ActResult` with success status |
+| `extract()` | Pull structured data from page | Typed object matching schema |
+| `agent()` | Run autonomous multi-step workflows | `AgentResult` with history |
+
+### Usage Patterns
+
+**observe() - Discover elements before acting**
+```typescript
+const actions = await stagehand.observe("find the login button");
+// Returns: [{ selector: "xpath=...", method: "click", description: "Login button" }]
+```
+
+**act() - Single focused actions**
+```typescript
+await stagehand.act("click the submit button");
+await stagehand.act("type %email% into the email field", { variables: { email } });
+```
+
+**extract() - Get structured data with schemas**
+```typescript
+const data = await stagehand.extract("get product info", z.object({
+  name: z.string(),
+  price: z.string(),  // Use string for "$19.99" format
+  inStock: z.boolean()
+}));
+```
+
+### Best Practices
+
+```mermaid
+flowchart LR
+    subgraph Speed
+        A[observe first] --> B[batch actions]
+    end
+    subgraph Cost
+        C[enable caching] --> D[right-size model]
+    end
+    subgraph Reliability
+        E[single actions] --> F[verify elements]
+    end
+```
+
+| Category | Do | Don't |
+|----------|-----|-------|
+| **Prompting** | "click the Sign In button" | "click the blue button" |
+| **Actions** | One action per `act()` call | Combine multiple steps |
+| **Secrets** | Use `variables: { password }` | Put credentials in prompts |
+| **Speed** | `observe()` first, then act | Sequential `act()` calls |
+| **Cost** | Enable `cacheDir` | Skip caching for repeated tasks |
+
+### Caching
+
+Enable caching to skip LLM inference on repeated runs (10-100x faster):
+
+```typescript
+const stagehand = new Stagehand({
+  cacheDir: ".stagehand-cache"  // Actions cached here
+});
+```
+
+- **First run**: Uses LLM, caches results
+- **Subsequent runs**: Reuses cache, no LLM calls
+- **Tip**: Commit cache to version control for CI/CD
+
+### Speed Optimization
+
+1. **Plan with observe()** - Get all selectors in one LLM call, then execute without inference
+2. **Set timeouts** - Use `domcontentloaded` instead of waiting for all resources
+3. **Reduce DOM** - Strip videos/iframes before processing
+
+### Cost Optimization
+
+1. **Right-size models** - Use `gpt-4o-mini` for simple tasks, save `gpt-4o` for complex ones
+2. **Enable caching** - Eliminates redundant LLM calls
+3. **Batch extractions** - One `extract()` with full schema vs. multiple calls
 
 ## License
 

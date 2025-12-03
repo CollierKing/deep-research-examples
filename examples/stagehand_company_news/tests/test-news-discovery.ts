@@ -152,6 +152,7 @@ async function testNewsDiscovery(): Promise<void> {
   log('success', 'LLM client created');
 
   // Create Stagehand with caching and S3 logger
+  // Add stealth args to avoid bot detection on search engines
   const stagehand = new Stagehand({
     env: config.stagehand.env,
     verbose: config.stagehand.verbose,
@@ -160,6 +161,27 @@ async function testNewsDiscovery(): Promise<void> {
     cacheDir: config.stagehand.cacheDir,
     localBrowserLaunchOptions: {
       headless: config.stagehand.headless,
+      args: [
+        '--disable-blink-features=AutomationControlled',
+        '--disable-features=IsolateOrigins,site-per-process',
+        '--disable-site-isolation-trials',
+        '--disable-web-security',
+        '--no-first-run',
+        '--no-default-browser-check',
+        '--disable-infobars',
+        '--window-size=1920,1080',
+        '--start-maximized',
+        '--disable-extensions',
+        '--disable-popup-blocking',
+        '--disable-backgrounding-occluded-windows',
+        '--disable-renderer-backgrounding',
+        '--disable-background-timer-throttling',
+        '--disable-ipc-flooding-protection',
+        '--password-store=basic',
+        '--use-mock-keychain',
+        '--force-webrtc-ip-handling-policy=disable_non_proxied_udp',
+      ],
+      ignoreDefaultArgs: ['--enable-automation'],
     },
   });
 
@@ -180,9 +202,10 @@ async function testNewsDiscovery(): Promise<void> {
       // Check for cached discovery result first
       const cachedResult = await persistence.getCachedDiscoveryResult(company.website);
 
+      let result: DiscoveryResult;
       if (cachedResult) {
         log('success', `Using cached result for ${company.name}`);
-        results.push({
+        result = {
           companyName: cachedResult.companyName,
           companyWebsite: cachedResult.domain,
           success: true,
@@ -193,11 +216,18 @@ async function testNewsDiscovery(): Promise<void> {
           searchResultsCount: 0,
           candidatesChecked: 0,
           steps: [],
-        });
+        };
       } else {
-        const result = await discoverNewsPage(stagehand, company, discoveryConfig);
-        results.push(result);
+        result = await discoverNewsPage(stagehand, company, discoveryConfig);
       }
+
+      results.push(result);
+
+      // Flush everything to S3 immediately after each company
+      // This includes: results, logs, metrics, history, cache
+      await persistence.uploadDiscoveryResults([result]);
+      await persistence.flushAll();
+      log('info', `Flushed data to S3 for ${company.name}`);
 
       // Brief delay between companies
       if (i < TEST_COMPANIES.length - 1) {

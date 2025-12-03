@@ -221,15 +221,112 @@ async function discoverViaSearch(
 
   const extractionInstruction = getSearchExtractionInstruction(config.maxSearchResults);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const searchResults = (await stagehand.extract(extractionInstruction, SearchResultsSchema as any)) as z.infer<
-    typeof SearchResultsSchema
-  >;
+  // Try observe() first to find search result links, then extract URLs from them
+  log('info', '  Using observe() to find search result links...');
+  const observedLinks = await stagehand.observe(
+    'Find all the main search result links on this page. These are the clickable result titles that link to external websites. On DuckDuckGo, these are the blue title links in each search result.'
+  );
+  log('info', `  Found ${observedLinks.length} observed link elements`);
 
-  log('info', `  Found ${searchResults.results.length} search results`);
+  let searchResults: z.infer<typeof SearchResultsSchema>;
+
+  if (observedLinks.length > 0) {
+    // Extract URLs from observed elements
+    log('info', '  Extracting URLs from observed elements...');
+    const extractedResults: Array<{ title: string; url: string; snippet: string }> = [];
+    const baseUrl = page.url();
+
+    for (const link of observedLinks.slice(0, config.maxSearchResults)) {
+      const result = await extractHrefFromElement(page, link.selector, link.description);
+      if (result?.href) {
+        // Normalize the URL
+        let normalizedUrl = result.href;
+        try {
+          if (result.href.startsWith('/')) {
+            normalizedUrl = new URL(result.href, baseUrl).href;
+          } else if (!result.href.startsWith('http')) {
+            normalizedUrl = new URL(result.href, baseUrl).href;
+          }
+        } catch {
+          // Keep original if URL parsing fails
+        }
+
+        // Skip DuckDuckGo internal links
+        if (normalizedUrl.includes('duckduckgo.com')) {
+          continue;
+        }
+
+        extractedResults.push({
+          title: result.text || link.description,
+          url: normalizedUrl,
+          snippet: link.description,
+        });
+        console.log(`    ${extractedResults.length}. ${normalizedUrl}`);
+      }
+    }
+
+    if (extractedResults.length > 0) {
+      searchResults = { results: extractedResults };
+      addStep(steps, '1A', 'Extract search results', 'success', `Found ${extractedResults.length} results via observe`);
+    } else {
+      // Fall back to extract() if observe didn't yield URLs
+      log('info', '  No URLs extracted from observed elements, falling back to extract()...');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      searchResults = (await stagehand.extract(extractionInstruction, SearchResultsSchema as any)) as z.infer<
+        typeof SearchResultsSchema
+      >;
+      addStep(steps, '1A', 'Extract search results', 'success', `Found ${searchResults.results.length} results via extract`);
+    }
+  } else {
+    // No observed links, use extract() directly
+    log('info', '  No observed links, using extract()...');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    searchResults = (await stagehand.extract(extractionInstruction, SearchResultsSchema as any)) as z.infer<
+      typeof SearchResultsSchema
+    >;
+
+    // Always log what we got back
+    console.log('\n  === EXTRACT RESULTS ===');
+    console.log(`  Raw response: ${JSON.stringify(searchResults, null, 2)}`);
+    console.log(`  Results count: ${searchResults.results?.length ?? 'undefined'}`);
+
+    if (!searchResults.results || searchResults.results.length === 0) {
+      addStep(steps, '1A', 'Extract search results', 'fail', 'No results found');
+      log('error', '  Extract returned 0 results - this may indicate DuckDuckGo blocked the request or the page structure changed');
+
+      // Take a screenshot for debugging
+      try {
+        const screenshotPath = `/tmp/ddg-debug-${Date.now()}.png`;
+        await page.screenshot({ path: screenshotPath, fullPage: true });
+        log('info', `  Debug screenshot saved: ${screenshotPath}`);
+      } catch {
+        // Ignore screenshot errors
+      }
+
+      return {
+        success: false,
+        newsPageUrl: null,
+        latestDate: null,
+        searchResultsCount: 0,
+        candidatesChecked: 0,
+        error: 'No search results found - extract() returned empty',
+      };
+    }
+
+    addStep(steps, '1A', 'Extract search results', 'success', `Found ${searchResults.results.length} results`);
+
+    // Log extracted URLs
+    log('info', '  Extracted URLs (in order):');
+    searchResults.results.forEach((r, i) => {
+      console.log(`    ${i + 1}. ${r.title || 'No title'}`);
+      console.log(`       URL: ${r.url || 'No URL'}`);
+      console.log(`       Snippet: ${(r.snippet || 'No snippet').substring(0, 100)}...`);
+    });
+  }
+
+  log('info', `  Total search results: ${searchResults.results.length}`);
 
   if (searchResults.results.length === 0) {
-    addStep(steps, '1A', 'Extract search results', 'fail', 'No results found');
     return {
       success: false,
       newsPageUrl: null,
@@ -239,14 +336,6 @@ async function discoverViaSearch(
       error: 'No search results found',
     };
   }
-
-  addStep(steps, '1A', 'Extract search results', 'success', `Found ${searchResults.results.length} results`);
-
-  // Log extracted URLs
-  log('info', '  Extracted URLs (in order):');
-  searchResults.results.forEach((r, i) => {
-    console.log(`    ${i + 1}. ${r.url}`);
-  });
 
   // Step 1B: Heuristic URL filtering (no LLM)
   console.log('\n' + '─'.repeat(60));
@@ -335,8 +424,12 @@ async function discoverViaSearch(
           continue;
         }
 
-        log('success', `    Validated successfully (HTTP ${validationStatus})`);
         addStep(steps, `1D-${candidatesChecked}`, 'Verify candidate', 'success', verification.explanation, candidate.url);
+
+        console.log('\n' + '='.repeat(60));
+        console.log(`FOUND: ${candidate.url}`);
+        console.log(`Latest Date: ${verification.latestDate || 'N/A'}`);
+        console.log('='.repeat(60));
 
         return {
           success: true,
@@ -422,19 +515,10 @@ async function discoverViaHomepage(
 
   await delay(config.delayBetweenActionsMs);
 
-  // Step 2A: Expand navigation dropdowns
-  log('info', '  Expanding navigation dropdowns...');
-  addStep(steps, '2A', 'Expand nav dropdowns', 'info', 'Looking for dropdown menus to expand');
-
-  try {
-    await stagehand.act(
-      'Look at the main navigation menu at the top of the page. Find any menu items that have dropdown arrows, submenus, or expandable sections (like "About", "Company", "Resources", "Media", etc.). Hover over or click on each one to expand any hidden dropdown menus. Do this for all navigation items that appear to have submenus.'
-    );
-    await delay(config.delayBetweenActionsMs / 2);
-    log('info', '  Dropdowns expanded (if any found)');
-  } catch (expandError) {
-    log('warn', `  Failed to expand dropdowns: ${expandError instanceof Error ? expandError.message : 'Unknown'}`);
-  }
+  // Step 2A: Skip dropdown expansion - it seems to be causing navigation issues
+  // Just try to observe links directly from the current page
+  log('info', '  Skipping dropdown expansion (observe will find all visible and expandable links)');
+  addStep(steps, '2A', 'Expand nav dropdowns', 'skip', 'Skipping - observe() searches the full page');
 
   // Use observe() to find news/press links
   log('info', '  Looking for news/press links on homepage...');
@@ -442,6 +526,7 @@ async function discoverViaHomepage(
   const validLinks: Array<{ text: string; url: string }> = [];
 
   try {
+    log('info', `  Current page URL: ${page.url()}`);
     const actions = await stagehand.observe(
       'Find all links (<a> tags) related to company news or press releases. This includes links with text like: News, Newsroom, Press, Press Center, Press Releases, Media, Media Center, Media Room, Announcements, Updates, Investor News, Corporate News, Latest News, or any similar variations. Look in navigation menus, dropdowns, header, footer, and sidebar sections.'
     );
@@ -452,14 +537,21 @@ async function discoverViaHomepage(
     });
 
     // Extract hrefs from observed elements
+    if (actions.length > 0) {
+      console.log(`\n  Extracting URLs from ${actions.length} observed elements:`);
+    }
     for (const action of actions) {
       const result = await extractHrefFromElement(page, action.selector, action.description);
       if (result?.href) {
         const normalizedUrl = normalizeUrl(result.href, baseUrl);
         if (normalizedUrl) {
           validLinks.push({ text: result.text, url: normalizedUrl });
-          console.log(`    -> Got href: ${normalizedUrl}`);
+          console.log(`    ✓ "${action.description}" -> ${normalizedUrl}`);
+        } else {
+          console.log(`    ✗ "${action.description}" -> invalid URL: ${result.href}`);
         }
+      } else {
+        console.log(`    ✗ "${action.description}" -> could not extract href`);
       }
     }
   } catch (observeError) {
@@ -500,16 +592,27 @@ async function discoverViaHomepage(
     const textLower = link.text.toLowerCase();
 
     // Must be on the company's domain
-    if (!isOnDomain(link.url, domain)) return false;
+    if (!isOnDomain(link.url, domain)) {
+      console.log(`    ✗ WRONG DOMAIN: "${link.text}" -> ${link.url}`);
+      return false;
+    }
 
     // Filter out PDFs, images
     if (urlLower.endsWith('.pdf') || urlLower.endsWith('.jpg') || urlLower.endsWith('.png')) {
+      console.log(`    ✗ FILE TYPE: "${link.text}" -> ${link.url}`);
       return false;
     }
 
     // Must have news/press keywords in URL or link text
     const keywords = ['news', 'press', 'media', 'blog', 'updates', 'investor', 'announcement'];
-    return keywords.some(kw => urlLower.includes(kw) || textLower.includes(kw));
+    const hasKeyword = keywords.some(kw => urlLower.includes(kw) || textLower.includes(kw));
+    if (!hasKeyword) {
+      console.log(`    ✗ NO KEYWORDS: "${link.text}" -> ${link.url}`);
+      return false;
+    }
+
+    console.log(`    ✓ PASS: "${link.text}" -> ${link.url}`);
+    return true;
   });
 
   log('info', `  After domain/keyword filter: ${domainFilteredLinks.length}/${uniqueLinks.length} links`);
@@ -743,7 +846,7 @@ async function discoverViaSiteSearch(
   let searchElement: { selector: string; description: string } | null = null;
   try {
     const searchElements = await stagehand.observe(
-      'Find the search icon or search button on this page. It is usually a magnifying glass icon (🔍) in the header or navigation bar. Do NOT select navigation menu items like "Store", "Mac", "iPad", "iPhone", etc. Look specifically for a search/magnifying glass icon or a button/link labeled "Search".'
+      'Find the search icon or search button on this page. Look for a magnifying glass icon or a button/link labeled "Search" in the header or navigation bar. Do NOT select product navigation menu items.'
     );
 
     log('info', `  Observe found ${searchElements.length} potential search elements`);
@@ -773,7 +876,7 @@ async function discoverViaSiteSearch(
     };
   }
 
-  // Step 3A-2: Click search icon using act(element)
+  // Step 3A-2: Click search icon using Playwright directly (bypasses Stagehand method validation)
   console.log('\n' + '─'.repeat(60));
   console.log('STEP 3A-2: Open Site Search');
   console.log('─'.repeat(60));
@@ -781,15 +884,19 @@ async function discoverViaSiteSearch(
 
   let searchInputOpened = false;
   try {
-    const openSearchResult = await stagehand.act(searchElement);
-
-    log('info', `  Open search result: ${openSearchResult.success ? 'success' : 'failed'} - ${openSearchResult.message}`);
-
-    if (openSearchResult.success) {
-      searchInputOpened = true;
-      addStep(steps, '3A-2', 'Open search', 'success', 'Clicked search icon to open search input');
-      await delay(1000);
+    // Use Playwright directly to click the element - this avoids Stagehand's method validation
+    // which fails with local models that return invalid method names
+    const selector = searchElement.selector;
+    if (selector.startsWith('xpath=')) {
+      const xpath = selector.replace('xpath=', '');
+      await page.locator(`xpath=${xpath}`).click();
+    } else {
+      await page.locator(selector).click();
     }
+    searchInputOpened = true;
+    addStep(steps, '3A-2', 'Open search', 'success', 'Clicked search icon to open search input');
+    await delay(1000);
+    log('info', '  Open search result: success - clicked via Playwright');
   } catch (openError) {
     log('warn', `  Failed to open search: ${openError instanceof Error ? openError.message : 'Unknown'}`);
   }
@@ -806,14 +913,20 @@ async function discoverViaSiteSearch(
     };
   }
 
-  // Helper to re-open search using observe + act pattern
+  // Helper to re-open search using observe + Playwright click pattern
   const reopenSearch = async (): Promise<boolean> => {
     try {
       const searchElements = await stagehand.observe(
-        'Find the search icon or search button (usually a magnifying glass icon 🔍) in the header or navigation bar.'
+        'Find the search icon or search button in the header or navigation bar.'
       );
       if (searchElements.length > 0) {
-        await stagehand.act(searchElements[0]);
+        const selector = searchElements[0].selector;
+        if (selector.startsWith('xpath=')) {
+          const xpath = selector.replace('xpath=', '');
+          await page.locator(`xpath=${xpath}`).click();
+        } else {
+          await page.locator(selector).click();
+        }
         await delay(500);
         return true;
       }

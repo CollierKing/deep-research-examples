@@ -659,15 +659,30 @@ export class StagehandS3Persistence {
     const prefix = logLine.category ? `[${logLine.category}]` : '';
     const level = logLine.level ?? 1;
 
+    // Truncate long messages (like full prompts/instructions)
+    let msg = logLine.message;
+    if (msg.length > 200) {
+      msg = msg.substring(0, 200) + '...';
+    }
+
+    // Skip verbose extraction/observation instruction logs entirely
+    if (msg.includes('instruction=') && msg.length > 100) {
+      return; // Don't print full instructions to console
+    }
+
     let auxStr = '';
     if (logLine.auxiliary) {
       const auxParts = Object.entries(logLine.auxiliary)
-        .map(([key, val]) => `${key}=${val.value}`)
+        .map(([key, val]) => {
+          // Truncate long auxiliary values too
+          const valStr = String(val.value);
+          return `${key}=${valStr.length > 50 ? valStr.substring(0, 50) + '...' : valStr}`;
+        })
         .join(', ');
       auxStr = auxParts ? ` (${auxParts})` : '';
     }
 
-    const message = `${prefix} ${logLine.message}${auxStr}`;
+    const message = `${prefix} ${msg}${auxStr}`;
 
     switch (level) {
       case 0:
@@ -849,6 +864,59 @@ export class StagehandS3Persistence {
     const total = this.cacheHits + this.cacheMisses;
     const hitRate = total > 0 ? `${((this.cacheHits / total) * 100).toFixed(1)}%` : 'N/A';
     return { hits: this.cacheHits, misses: this.cacheMisses, hitRate };
+  }
+
+  // MARK: - Incremental Flush
+
+  /**
+   * Flush all pending data to S3 immediately.
+   * Call this after processing each company to ensure data is persisted.
+   *
+   * This uploads:
+   * - Pending logs
+   * - Current metrics snapshot
+   * - Current history snapshot
+   * - Cache files to global cache
+   * - Session metadata update
+   */
+  async flushAll(): Promise<void> {
+    if (!this.options.enabled || !this.sessionId) {
+      return;
+    }
+
+    // Flush pending logs
+    await this.flushLogBufferSync();
+
+    // Upload current metrics if we have stagehand attached
+    if (this.stagehand && this.options.captureMetrics) {
+      try {
+        const metrics = await this.stagehand.metrics;
+        await this.uploadMetrics(metrics);
+      } catch {
+        // Ignore errors - metrics might not be ready
+      }
+    }
+
+    // Upload current history if we have stagehand attached
+    if (this.stagehand && this.options.captureHistory) {
+      try {
+        const history = await this.stagehand.history;
+        await this.uploadHistory(history);
+      } catch {
+        // Ignore errors - history might not be ready
+      }
+    }
+
+    // Upload cache files to global cache
+    if (this.options.syncCacheDir && this.localCacheDir) {
+      await this.uploadToGlobalCache(this.localCacheDir);
+    }
+
+    // Update session metadata
+    await this.uploadMetadataSync();
+
+    // Wait for any pending async uploads
+    await this.waitForPendingUploads();
   }
 
   // MARK: - Discovery Results Upload

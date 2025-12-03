@@ -17,8 +17,8 @@ export function getSearchExtractionInstruction(maxResults: number): string {
 Extract the organic search results from this DuckDuckGo results page IN THE EXACT ORDER they appear on the page.
 
 For each search result, identify:
-1. The title/heading of the result
-2. The destination URL (the actual link, not DuckDuckGo's redirect URL)
+1. The title/heading of the result (the clickable blue link text)
+2. The destination URL (the actual link, NOT DuckDuckGo's redirect URL)
 3. The snippet/description text shown below the title
 
 Important guidelines:

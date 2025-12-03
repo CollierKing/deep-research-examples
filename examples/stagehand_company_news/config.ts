@@ -78,7 +78,7 @@ export const config = {
     /** Browser environment: 'LOCAL' or 'BROWSERBASE' */
     env: (process.env.STAGEHAND_ENV || 'LOCAL') as 'LOCAL' | 'BROWSERBASE',
     /** Verbosity level: 0=silent, 1=normal, 2=debug */
-    verbose: parseInt(process.env.STAGEHAND_VERBOSE || '1') as 0 | 1 | 2,
+    verbose: parseInt(process.env.STAGEHAND_VERBOSE || '0') as 0 | 1 | 2,
     /** Enable DOM debugging overlay */
     debugDom: process.env.STAGEHAND_DEBUG_DOM === 'true',
     /** Run browser in headless mode */
