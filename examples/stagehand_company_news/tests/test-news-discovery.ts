@@ -18,39 +18,71 @@
  *   - Search for news/press terms
  *   - Observe and verify results
  *
- * Run with S3:
- *   S3_PERSISTENCE_ENABLED=true tsx tests/test-news-discovery.ts
+ * Usage:
+ *   # Default (Ollama)
+ *   npm run test:discovery
  *
- * Run locally:
- *   tsx tests/test-news-discovery.ts
+ *   # With S3 persistence
+ *   npm run test:discovery:s3
+ *
+ *   # With different providers
+ *   npm run test:discovery:openai
+ *   npm run test:discovery:claude
+ *   npm run test:discovery:gemini
+ *
+ *   # Custom provider/model
+ *   LLM_PROVIDER=anthropic LLM_MODEL=claude-3-haiku-20240307 npm run test:discovery
  */
 
-import { Stagehand, AISdkClient } from '@browserbasehq/stagehand';
-import { createOllama } from 'ollama-ai-provider-v2';
+import { Stagehand } from '@browserbasehq/stagehand';
 import * as fs from 'fs';
 import * as path from 'path';
 import config from '../config';
 import { createS3PersistenceWithLogger } from '../utils/stagehand-s3-persistence';
 import { discoverNewsPage, DiscoveryResult, DiscoveryConfig } from '../src/news-discovery';
 import { TEST_COMPANIES } from '../companies';
+import { createLLMClient, getProviderDisplayName, LLMConfig } from '../src/llm-providers';
 
 // MARK: - Configuration
 
-const MODEL = 'gpt-oss:20b';
-const OLLAMA_BASE_URL = 'http://100.122.179.22:11434';
+/**
+ * Build LLM config from environment/config.ts
+ */
+function getLLMConfig(): LLMConfig {
+  const provider = config.llm.provider;
+  const model = config.llm.model;
 
-// Discovery configuration
-const DISCOVERY_CONFIG: DiscoveryConfig = {
-  ollamaBaseUrl: OLLAMA_BASE_URL,
-  ollamaModel: MODEL,
-  headless: config.stagehand.headless ?? true,
-  verbose: config.stagehand.verbose as 0 | 1 | 2,
-  cacheDir: config.stagehand.cacheDir,
-  maxSearchResults: 10,
-  maxCandidatesToCheck: 5,
-  timeoutMs: 30000,
-  delayBetweenActionsMs: 2000,
-};
+  // Get API key based on provider
+  let apiKey: string | undefined;
+  if (provider !== 'ollama') {
+    apiKey = config.llm.apiKeys[provider as keyof typeof config.llm.apiKeys];
+  }
+
+  // Get base URL for Ollama
+  const baseUrl = provider === 'ollama' ? config.llm.ollama.baseUrl : undefined;
+
+  return {
+    provider,
+    model,
+    apiKey,
+    baseUrl,
+  };
+}
+
+/**
+ * Build discovery config from config.ts
+ */
+function getDiscoveryConfig(): DiscoveryConfig {
+  return {
+    headless: config.stagehand.headless ?? true,
+    verbose: config.stagehand.verbose as 0 | 1 | 2,
+    cacheDir: config.stagehand.cacheDir,
+    maxSearchResults: config.discovery.maxSearchResults,
+    maxCandidatesToCheck: config.discovery.maxCandidatesToCheck,
+    timeoutMs: config.discovery.timeoutMs,
+    delayBetweenActionsMs: config.discovery.delayBetweenActionsMs,
+  };
+}
 
 // MARK: - Utilities
 
@@ -67,9 +99,12 @@ function log(type: 'info' | 'success' | 'warn' | 'error', message: string): void
 // MARK: - Main Test
 
 async function testNewsDiscovery(): Promise<void> {
+  const llmConfig = getLLMConfig();
+  const discoveryConfig = getDiscoveryConfig();
+
   console.log('\n' + '='.repeat(70));
   console.log('NEWS/PR PAGE DISCOVERY TEST');
-  console.log('4-Stage Flow: Search FIRST, Homepage LAST');
+  console.log('3-Step Flow: Search FIRST, Homepage, then Site Search');
   console.log('='.repeat(70));
 
   // Wipe local cache at start - S3 is the source of truth
@@ -79,21 +114,21 @@ async function testNewsDiscovery(): Promise<void> {
     log('info', `Wiped local cache: ${cacheDir}`);
   }
 
-  log('info', `Model: ${MODEL}`);
-  log('info', `Ollama: ${OLLAMA_BASE_URL}`);
+  log('info', `LLM Provider: ${getProviderDisplayName(llmConfig.provider)}`);
+  log('info', `Model: ${llmConfig.model}`);
+  if (llmConfig.baseUrl) {
+    log('info', `Base URL: ${llmConfig.baseUrl}`);
+  }
   log('info', `S3 Enabled: ${config.aws.s3.enabled}`);
   log('info', `Cache Dir: ${config.stagehand.cacheDir}`);
   log('info', `Companies to test: ${TEST_COMPANIES.length}`);
 
   // Create S3 persistence with model-specific paths
-  // This creates:
-  //   - stagehand-cache-{model}/ for Stagehand's act() cache
-  //   - results-{model}/ for discovery results cache (per domain)
   const { persistence, logger } = createS3PersistenceWithLogger({
     bucket: config.aws.s3.bucket,
     prefix: config.aws.s3.prefix,
     enabled: config.aws.s3.enabled,
-    modelName: MODEL,  // Model-specific cache paths
+    modelName: `${llmConfig.provider}-${llmConfig.model}`,
     logBatchSize: 50,
     captureHistory: true,
     captureMetrics: true,
@@ -102,32 +137,27 @@ async function testNewsDiscovery(): Promise<void> {
   });
 
   // Start session BEFORE creating Stagehand
-  // This downloads global cache from S3 to enable cache reuse
   const sessionId = await persistence.startSession({
     stagehandEnv: config.stagehand.env,
-    model: MODEL,
-    task: 'News/PR page discovery - 4-stage flow',
+    model: `${llmConfig.provider}/${llmConfig.model}`,
+    task: 'News/PR page discovery - 3-step flow',
     cacheDir: config.stagehand.cacheDir,
   });
 
   log('success', `Session started: ${sessionId}`);
 
-  // Create Ollama client
-  const ollamaProvider = createOllama({
-    baseURL: `${OLLAMA_BASE_URL}/api`,
-  });
-
-  const llmClient = new AISdkClient({
-    model: ollamaProvider(MODEL),
-  });
+  // Create LLM client using the provider factory
+  log('info', `Creating ${getProviderDisplayName(llmConfig.provider)} client...`);
+  const { client: llmClient } = await createLLMClient(llmConfig);
+  log('success', 'LLM client created');
 
   // Create Stagehand with caching and S3 logger
   const stagehand = new Stagehand({
     env: config.stagehand.env,
     verbose: config.stagehand.verbose,
     llmClient,
-    logger, // S3-enabled logger
-    cacheDir: config.stagehand.cacheDir, // Enable per-action caching
+    logger,
+    cacheDir: config.stagehand.cacheDir,
     localBrowserLaunchOptions: {
       headless: config.stagehand.headless,
     },
@@ -142,7 +172,7 @@ async function testNewsDiscovery(): Promise<void> {
     // Attach for history/metrics capture
     persistence.attachStagehand(stagehand);
 
-    // Process each company using the 4-stage discovery flow
+    // Process each company using the 3-step discovery flow
     for (let i = 0; i < TEST_COMPANIES.length; i++) {
       const company = TEST_COMPANIES[i];
       console.log(`\n[${i + 1}/${TEST_COMPANIES.length}] Processing ${company.name}...`);
@@ -151,7 +181,6 @@ async function testNewsDiscovery(): Promise<void> {
       const cachedResult = await persistence.getCachedDiscoveryResult(company.website);
 
       if (cachedResult) {
-        // Use cached result - skip discovery entirely
         log('success', `Using cached result for ${company.name}`);
         results.push({
           companyName: cachedResult.companyName,
@@ -166,8 +195,7 @@ async function testNewsDiscovery(): Promise<void> {
           steps: [],
         });
       } else {
-        // Run discovery
-        const result = await discoverNewsPage(stagehand, company, DISCOVERY_CONFIG);
+        const result = await discoverNewsPage(stagehand, company, discoveryConfig);
         results.push(result);
       }
 
@@ -258,6 +286,8 @@ async function testNewsDiscovery(): Promise<void> {
     console.log('\n' + '='.repeat(70));
     console.log('FINAL SUMMARY');
     console.log('='.repeat(70));
+    console.log(`LLM Provider: ${getProviderDisplayName(llmConfig.provider)}`);
+    console.log(`Model: ${llmConfig.model}`);
     console.log(`Total companies: ${results.length}`);
     console.log(`Successful: ${successful}`);
     console.log(`Failed: ${results.length - successful}`);

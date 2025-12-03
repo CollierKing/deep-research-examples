@@ -52,16 +52,25 @@ export interface DiscoveryResult {
 
 /**
  * Configuration for the discovery process
+ *
+ * Note: LLM provider configuration is handled separately via config.ts
+ * and the llm-providers.ts factory. This interface only contains
+ * discovery-specific settings.
  */
 export interface DiscoveryConfig {
-  ollamaBaseUrl: string;
-  ollamaModel: string;
+  /** Run browser in headless mode */
   headless: boolean;
+  /** Stagehand verbosity level (0=silent, 1=normal, 2=debug) */
   verbose: 0 | 1 | 2;
+  /** Directory for Stagehand's act() cache */
   cacheDir: string;
+  /** Maximum search results to extract from DuckDuckGo */
   maxSearchResults: number;
+  /** Maximum candidates to verify with LLM per step */
   maxCandidatesToCheck: number;
+  /** Timeout for page navigation in milliseconds */
   timeoutMs: number;
+  /** Delay between browser actions in milliseconds */
   delayBetweenActionsMs: number;
 }
 
