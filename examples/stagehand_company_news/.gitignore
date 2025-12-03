@@ -1,0 +1,14 @@
+# Dependencies
+node_modules/
+
+# Environment
+.env
+
+# Stagehand cache (downloaded from S3 at runtime)
+.stagehand-cache/
+
+# Build artifacts
+dist/
+
+# OS files
+.DS_Store

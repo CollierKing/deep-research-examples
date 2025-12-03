@@ -1,0 +1,47 @@
+{
+  "name": "stagehand_scraping",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test:discovery": "tsx tests/test-news-discovery.ts",
+    "test:discovery:s3": "S3_PERSISTENCE_ENABLED=true tsx tests/test-news-discovery.ts",
+    "build": "tsc",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write \"**/*.{ts,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,json,md}\"",
+    "check": "npm run format:check && npm run lint",
+    "fix": "npm run format && npm run lint:fix"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.940.0",
+    "@aws-sdk/client-secrets-manager": "^3.926.0",
+    "@aws-sdk/lib-storage": "^3.940.0",
+    "@browserbasehq/stagehand": "^3.0.1",
+    "@langchain/core": "^1.1.0",
+    "@langchain/ollama": "^1.0.2",
+    "date-fns": "^4.1.0",
+    "dotenv": "^16.6.1",
+    "googleapis": "^165.0.0",
+    "langchain": "^1.1.1",
+    "ollama-ai-provider-v2": "^1.5.5",
+    "zod": "^3.25.67"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.0",
+    "@typescript-eslint/eslint-plugin": "^8.46.3",
+    "@typescript-eslint/parser": "^8.46.3",
+    "eslint": "^9.39.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "prettier": "^3.6.2",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}
