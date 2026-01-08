@@ -12,6 +12,7 @@ Deep research refers to AI workflows that go beyond simple prompting—systemati
 deep-research-examples/
 ├── examples/
 │   ├── ai_theme_plays/           # DeepAgents: Multi-stage analysis with enforcement
+│   ├── gemini_cloudflare_workflows/ # Cloudflare Workers: Async research with Gemini
 │   ├── pm_deep_agent/            # DeepAgents: Product research with dual streams
 │   └── stagehand_company_news/   # Stagehand: Browser automation for news discovery
 └── README.md
@@ -19,12 +20,13 @@ deep-research-examples/
 
 ## Approaches
 
-This repository demonstrates two different approaches to deep research:
+This repository demonstrates several approaches to deep research:
 
-| Approach | Best For | Examples |
-|----------|----------|----------|
-| **DeepAgents** | Database queries, batch processing, multi-source analysis | AI Theme Plays, PM Deep Agent |
-| **Stagehand** | Browser automation, web scraping, dynamic content | Company News Discovery |
+| Approach                 | Best For | Examples |
+|--------------------------|----------|----------|
+| **DeepAgents**           | Database queries, batch processing, multi-source analysis | AI Theme Plays, PM Deep Agent |
+| **Cloudflare Workflows** | Long-running async workflows, serverless orchestration | Gemini Cloudflare Workflows |
+| **Stagehand**            | Browser automation, web scraping, dynamic content | Company News Discovery |
 
 ---
 
@@ -55,6 +57,36 @@ A 3-step discovery flow with LLM verification at each step:
 - **Incremental caching** - Skip LLM inference on repeated runs
 
 [View Full Documentation →](examples/stagehand_company_news/README.md)
+
+---
+
+### Earnings Alignment Analysis (Cloudflare Workers)
+
+**Path:** [`examples/gemini_cloudflare_workflows/`](examples/gemini_cloudflare_workflows/)
+
+**Tech Stack:** Cloudflare Workers + Python Workflows + Gemini Deep Research + D1 + R2 + Hyperdrive
+
+Automated analysis of how companies execute on their earnings call promises. Given a ticker and earnings date, fetches the transcript and subsequent press releases, then uses Gemini Deep Research to identify alignment between management guidance and actual announcements.
+
+**The Challenge:** Gemini Deep Research takes ~30 minutes to complete, requiring async workflow orchestration with persistent state management across serverless functions.
+
+**How It Works:**
+
+A 6-step Cloudflare Workflow:
+1. **fetch_data** - Retrieves earnings transcript and press releases from MongoDB
+2. **prepare_upload** - Uploads context documents to R2 and Gemini FileStore
+3. **start_research** - Initiates Gemini Deep Research job
+4. **poll_for_result** - Polls until research completes (~30 min)
+5. **extract_structured_output** - Uses Workers AI to parse results into categories
+6. **save_result** - Persists to D1 and Postgres via Hyperdrive
+
+**Output Categories:**
+
+- **Confirmed Execution** - Guidance followed through with press releases
+- **Unaddressed Guidance** - Promises with no subsequent PR confirmation
+- **New Developments** - PR announcements not previewed in earnings
+
+[View Full Documentation →](examples/gemini_cloudflare_workflows/README.md)
 
 ---
 
@@ -116,6 +148,7 @@ Each example includes its own README with detailed setup instructions, architect
 | Example | Focus |
 |---------|-------|
 | [Company News Discovery](examples/stagehand_company_news/) | Browser automation, multi-provider LLMs, web scraping |
+| [Earnings Alignment Analysis](examples/gemini_cloudflare_workflows/) | Async workflows, Gemini Deep Research, serverless orchestration |
 | [AI Theme Plays](examples/ai_theme_plays/) | Workflow enforcement, multi-database integration, batch processing |
 | [PM Deep Agent](examples/pm_deep_agent/) | Dual-stream research, comparative analysis |
 

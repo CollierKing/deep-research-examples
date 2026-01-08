@@ -1,0 +1,22 @@
+[project]
+name = "deep-research-workflow"
+version = "0.1.0"
+description = "Python workflow for deep research on earnings transcripts and press releases"
+requires-python = ">=3.12"
+dependencies = [
+    "httpx>=0.28.1",
+    "sqlalchemy-cloudflare-d1",
+    "langchain-cloudflare",
+    "pydantic>=2.0",
+    # NOTE: langchain 1.0.0 needs langchain-core 1.1.0 for all imports to work
+    # We manually install via scripts/setup_pyodide_deps.sh:
+    # - langchain 1.0.0, langchain-core 1.1.0, langgraph 1.0.0, langgraph_sdk, langgraph_checkpoint
+    # - stubs for ormsgpack and xxhash (C extensions with no Pyodide wheels)
+    # Run: ./scripts/setup_pyodide_deps.sh
+]
+
+[dependency-groups]
+dev = [
+    "workers-py",
+    "workers-runtime-sdk",
+]

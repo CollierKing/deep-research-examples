@@ -1,0 +1,55 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "deep-research-workflow",
+  "main": "src/entry.py",
+  "compatibility_flags": [
+    "python_workers"
+  ],
+  "compatibility_date": "2025-11-02",
+  // Workers AI binding
+  "ai": {
+    "binding": "AI"
+  },
+  // Service bindings (RPC entrypoints)
+  "services": [
+    {
+      "binding": "HYPERDRIVE_WORKER",
+      "service": "hyperdrive-worker",
+      "entrypoint": "HyperdriveRPC"
+    },
+    {
+      "binding": "MONGODB_WORKER",
+      "service": "mongodb-worker",
+      "entrypoint": "MongoDBService"
+    }
+  ],
+  // Workflow definition
+  "workflows": [
+    {
+      "name": "deep-research",
+      "binding": "DEEP_RESEARCH_WORKFLOW",
+      "class_name": "DeepResearchWorkflow"
+    }
+  ],
+  // D1 Database binding
+  "d1_databases": [
+    {
+      "binding": "D1",
+      "database_name": "db",
+      "database_id": "<your-db-id-here>",
+      "remote": true
+    }
+  ],
+  // R2 Bucket binding for storing uploaded documents
+  "r2_buckets": [
+    {
+      "binding": "R2",
+      "bucket_name": "deepresearch-workflows"
+    }
+  ],
+  // Environment variables
+  "vars": {},
+  "observability": {
+    "enabled": true
+  }
+}
